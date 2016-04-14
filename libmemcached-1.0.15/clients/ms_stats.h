@@ -41,6 +41,10 @@ typedef struct
   uint64_t pre_total_time;
   uint64_t pre_squares;
   double pre_log_product;
+  #define ALL_TIMES 100000 * 6 * 10 
+  uint64_t all_times_lt[ALL_TIMES];
+  uint64_t all_times_ts[ALL_TIMES];
+  int64_t all_times_count;
 } ms_stat_t;
 
 /* initialize statistic */

@@ -64,8 +64,12 @@ void ms_init_stats(ms_stat_t *stat, const char *name)
   stat->pre_log_product= 0;
   stat->get_miss= 0;
   stat->pre_get_miss= 0;
+  stat->all_times_count =0;
+
 } /* ms_init_stats */
 
+
+#include <time.h>
 
 /**
  * record one event
@@ -76,6 +80,14 @@ void ms_init_stats(ms_stat_t *stat, const char *name)
  */
 void ms_record_event(ms_stat_t *stat, uint64_t total_time, int get_miss)
 {
+  if(stat->all_times_count < ALL_TIMES && stat->all_times_count > -1 ){
+     stat->all_times_lt[stat->all_times_count] = total_time;
+     struct timespec ts; 
+     clock_gettime(CLOCK_REALTIME, &ts);
+     stat->all_times_ts[stat->all_times_count] = ts.tv_sec * 1000 * 1000 * 1000 + ts.tv_nsec; 
+     stat->all_times_count++;
+  }
+
   stat->total_time+= total_time;
 
   if (total_time < stat->min_time)
@@ -251,7 +263,7 @@ void ms_dump_format_stats(ms_stat_t *stat,
     period_log= exp(diff_log_product / (double)diff_events);
   }
 
-  printf("%s Statistics\n", stat->name);
+  /*printf("%s Statistics\n", stat->name);
   printf("%-8s %-8s %-12s %-12s %-10s %-10s %-8s %-10s %-10s %-10s %-10s\n",
          "Type",
          "Time(s)",
@@ -263,7 +275,7 @@ void ms_dump_format_stats(ms_stat_t *stat,
          "Max(us)",
          "Avg(us)",
          "Std_dev",
-         "Geo_dist");
+         "Geo_dist");*/
 
   printf(
     "%-8s %-8d %-12llu %-12lld %-10.1f %-10lld %-8lld %-10lld %-10lld %-10.2f %.2f\n",
@@ -279,7 +291,7 @@ void ms_dump_format_stats(ms_stat_t *stat,
     period_std,
     period_log);
 
-  printf(
+  /*printf(
     "%-8s %-8d %-12llu %-12lld %-10.1f %-10lld %-8lld %-10lld %-10lld %-10.2f %.2f\n\n",
     "Global",
     run_time,
@@ -291,7 +303,9 @@ void ms_dump_format_stats(ms_stat_t *stat,
     (long long)stat->max_time,
     (long long)global_average,
     global_std,
-    global_log);
+    global_log);*/
+
+  fflush(stdout);
 
   stat->pre_events= events;
   stat->pre_squares= (uint64_t)stat->squares;

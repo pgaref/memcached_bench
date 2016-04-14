@@ -15,6 +15,8 @@
  */
 #include "mem_config.h"
 
+#include<signal.h>
+#include<unistd.h>
 #include <stdlib.h>
 #include <getopt.h>
 #include <limits.h>
@@ -680,18 +682,29 @@ static void ms_stats_init()
 } /* ms_stats_init */
 
 
+void term(int sig);
+
 /* use to output the statistic */
 static void ms_print_statistics(int in_time)
 {
   int obj_size= (int)(ms_setting.avg_key_size + ms_setting.avg_val_size);
 
-  printf("\033[1;1H\033[2J\n");
-  ms_dump_format_stats(&ms_statistic.get_stat, in_time,
+  //printf("\033[1;1H\033[2J\n");
+
+ if( (ms_statistic.total_stat.all_times_count >= ALL_TIMES) ) //  && (ms_statistic.get_stat.all_times_count >= ALL_TIMES ) && (ms_statistic.set_stat.all_times_count >= ALL_TIMES)) 
+ {
+    term(0);
+ }
+
+/*  ms_dump_format_stats(&ms_statistic.get_stat, in_time,
                        ms_setting.stat_freq, obj_size);
+  printf("SET ");
   ms_dump_format_stats(&ms_statistic.set_stat, in_time,
                        ms_setting.stat_freq, obj_size);
+  printf("TOT ");
   ms_dump_format_stats(&ms_statistic.total_stat, in_time,
-                       ms_setting.stat_freq, obj_size);
+                       ms_setting.stat_freq, obj_size); */
+
 } /* ms_print_statistics */
 
 
@@ -874,9 +887,34 @@ static void ms_monitor_slap_mode()
 } /* ms_monitor_slap_mode */
 
 
+void term(int sig)
+{
+/*    for(int i = 0; i < ms_statistic.get_stat.all_times_count; i++){
+        printf("GET %i %lu %lu\n", i, ms_statistic.get_stat.all_times_ts[i], ms_statistic.get_stat.all_times_lt[i] );
+    }
+
+
+     for(int i = 0; i < ms_statistic.set_stat.all_times_count; i++){
+        printf("SET %i %lu %lu\n", i, ms_statistic.set_stat.all_times_ts[i], ms_statistic.set_stat.all_times_lt[i] );
+    } */
+
+    for(int i = 0; i < ms_statistic.total_stat.all_times_count; i++){
+        printf("TOTAL %i %lu %lu\n", i, ms_statistic.total_stat.all_times_ts[i], ms_statistic.total_stat.all_times_lt[i] );
+    }
+
+    exit(0);
+}
+
+
 /* the main function */
 int main(int argc, char *argv[])
 {
+
+  signal(SIGINT, term);
+  signal(SIGTERM, term);
+  signal(SIGHUP, term);
+  
+
   srandom((unsigned int)time(NULL));
   ms_global_struct_init();
 
@@ -899,6 +937,8 @@ int main(int argc, char *argv[])
   ms_thread_cleanup();
   ms_global_struct_destroy();
   ms_setting_cleanup();
+
+  term(0);
 
   return EXIT_SUCCESS;
 } /* main */
