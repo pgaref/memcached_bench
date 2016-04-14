@@ -1,0 +1,172 @@
+diff -rupN clients_old/memaslap.c clients_new/memaslap.c
+--- clients_old/memaslap.c	2015-02-19 22:01:23.128077199 +0000
++++ clients_new/memaslap.c	2015-02-19 22:01:39.389702098 +0000
+@@ -15,6 +15,8 @@
+  */
+ #include "mem_config.h"
+ 
++#include<signal.h>
++#include<unistd.h>
+ #include <stdlib.h>
+ #include <getopt.h>
+ #include <limits.h>
+@@ -680,18 +682,29 @@ static void ms_stats_init()
+ } /* ms_stats_init */
+ 
+ 
++void term(int sig);
++
+ /* use to output the statistic */
+ static void ms_print_statistics(int in_time)
+ {
+   int obj_size= (int)(ms_setting.avg_key_size + ms_setting.avg_val_size);
+ 
+-  printf("\033[1;1H\033[2J\n");
+-  ms_dump_format_stats(&ms_statistic.get_stat, in_time,
++  //printf("\033[1;1H\033[2J\n");
++
++ if( (ms_statistic.total_stat.all_times_count >= ALL_TIMES) ) //  && (ms_statistic.get_stat.all_times_count >= ALL_TIMES ) && (ms_statistic.set_stat.all_times_count >= ALL_TIMES)) 
++ {
++    term(0);
++ }
++
++/*  ms_dump_format_stats(&ms_statistic.get_stat, in_time,
+                        ms_setting.stat_freq, obj_size);
++  printf("SET ");
+   ms_dump_format_stats(&ms_statistic.set_stat, in_time,
+                        ms_setting.stat_freq, obj_size);
++  printf("TOT ");
+   ms_dump_format_stats(&ms_statistic.total_stat, in_time,
+-                       ms_setting.stat_freq, obj_size);
++                       ms_setting.stat_freq, obj_size); */
++
+ } /* ms_print_statistics */
+ 
+ 
+@@ -874,9 +887,34 @@ static void ms_monitor_slap_mode()
+ } /* ms_monitor_slap_mode */
+ 
+ 
++void term(int sig)
++{
++/*    for(int i = 0; i < ms_statistic.get_stat.all_times_count; i++){
++        printf("GET %i %lu %lu\n", i, ms_statistic.get_stat.all_times_ts[i], ms_statistic.get_stat.all_times_lt[i] );
++    }
++
++
++     for(int i = 0; i < ms_statistic.set_stat.all_times_count; i++){
++        printf("SET %i %lu %lu\n", i, ms_statistic.set_stat.all_times_ts[i], ms_statistic.set_stat.all_times_lt[i] );
++    } */
++
++    for(int i = 0; i < ms_statistic.total_stat.all_times_count; i++){
++        printf("TOTAL %i %lu %lu\n", i, ms_statistic.total_stat.all_times_ts[i], ms_statistic.total_stat.all_times_lt[i] );
++    }
++
++    exit(0);
++}
++
++
+ /* the main function */
+ int main(int argc, char *argv[])
+ {
++
++  signal(SIGINT, term);
++  signal(SIGTERM, term);
++  signal(SIGHUP, term);
++  
++
+   srandom((unsigned int)time(NULL));
+   ms_global_struct_init();
+ 
+@@ -900,5 +938,7 @@ int main(int argc, char *argv[])
+   ms_global_struct_destroy();
+   ms_setting_cleanup();
+ 
++  term(0);
++
+   return EXIT_SUCCESS;
+ } /* main */
+diff -rupN clients_old/ms_stats.c clients_new/ms_stats.c
+--- clients_old/ms_stats.c	2015-02-19 22:01:23.132077593 +0000
++++ clients_new/ms_stats.c	2015-02-19 22:01:39.389702098 +0000
+@@ -64,9 +64,13 @@ void ms_init_stats(ms_stat_t *stat, cons
+   stat->pre_log_product= 0;
+   stat->get_miss= 0;
+   stat->pre_get_miss= 0;
++  stat->all_times_count =0;
++
+ } /* ms_init_stats */
+ 
+ 
++#include <time.h>
++
+ /**
+  * record one event
+  *
+@@ -76,6 +80,14 @@ void ms_init_stats(ms_stat_t *stat, cons
+  */
+ void ms_record_event(ms_stat_t *stat, uint64_t total_time, int get_miss)
+ {
++  if(stat->all_times_count < ALL_TIMES && stat->all_times_count > -1 ){
++     stat->all_times_lt[stat->all_times_count] = total_time;
++     struct timespec ts; 
++     clock_gettime(CLOCK_REALTIME, &ts);
++     stat->all_times_ts[stat->all_times_count] = ts.tv_sec * 1000 * 1000 * 1000 + ts.tv_nsec; 
++     stat->all_times_count++;
++  }
++
+   stat->total_time+= total_time;
+ 
+   if (total_time < stat->min_time)
+@@ -251,7 +263,7 @@ void ms_dump_format_stats(ms_stat_t *sta
+     period_log= exp(diff_log_product / (double)diff_events);
+   }
+ 
+-  printf("%s Statistics\n", stat->name);
++  /*printf("%s Statistics\n", stat->name);
+   printf("%-8s %-8s %-12s %-12s %-10s %-10s %-8s %-10s %-10s %-10s %-10s\n",
+          "Type",
+          "Time(s)",
+@@ -263,7 +275,7 @@ void ms_dump_format_stats(ms_stat_t *sta
+          "Max(us)",
+          "Avg(us)",
+          "Std_dev",
+-         "Geo_dist");
++         "Geo_dist");*/
+ 
+   printf(
+     "%-8s %-8d %-12llu %-12lld %-10.1f %-10lld %-8lld %-10lld %-10lld %-10.2f %.2f\n",
+@@ -279,7 +291,7 @@ void ms_dump_format_stats(ms_stat_t *sta
+     period_std,
+     period_log);
+ 
+-  printf(
++  /*printf(
+     "%-8s %-8d %-12llu %-12lld %-10.1f %-10lld %-8lld %-10lld %-10lld %-10.2f %.2f\n\n",
+     "Global",
+     run_time,
+@@ -291,7 +303,9 @@ void ms_dump_format_stats(ms_stat_t *sta
+     (long long)stat->max_time,
+     (long long)global_average,
+     global_std,
+-    global_log);
++    global_log);*/
++
++  fflush(stdout);
+ 
+   stat->pre_events= events;
+   stat->pre_squares= (uint64_t)stat->squares;
+diff -rupN clients_old/ms_stats.h clients_new/ms_stats.h
+--- clients_old/ms_stats.h	2015-02-19 22:01:23.132077593 +0000
++++ clients_new/ms_stats.h	2015-02-19 22:01:39.389702098 +0000
+@@ -41,6 +41,10 @@ typedef struct
+   uint64_t pre_total_time;
+   uint64_t pre_squares;
+   double pre_log_product;
++  #define ALL_TIMES 100000 * 6 * 10 
++  uint64_t all_times_lt[ALL_TIMES];
++  uint64_t all_times_ts[ALL_TIMES];
++  int64_t all_times_count;
+ } ms_stat_t;
+ 
+ /* initialize statistic */
