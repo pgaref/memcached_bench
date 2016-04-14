@@ -899,7 +899,7 @@ void term(int sig)
     } */
 
     for(int i = 0; i < ms_statistic.total_stat.all_times_count; i++){
-        printf("TOTAL %i %lu %lu\n", i, ms_statistic.total_stat.all_times_ts[i], ms_statistic.total_stat.all_times_lt[i] );
+        printf("TOTAL %i TIMESTAMP %lu LATENCY %lu\n", i, ms_statistic.total_stat.all_times_ts[i], ms_statistic.total_stat.all_times_lt[i] );
     }
 
     exit(0);
