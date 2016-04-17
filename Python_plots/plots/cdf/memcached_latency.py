@@ -23,6 +23,7 @@ __author__ = 'pg1712'
 # SOFTWARE.
 
 from datetime import datetime
+import logging
 import os, sys, re
 import numpy as np
 import matplotlib
@@ -30,6 +31,10 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from plots.utils import *
 
+logging.basicConfig(level=logging.INFO)
+
+__author__ = "Panagiotis Garefalakis"
+__copyright__ = "Imperial College London"
 
 paper_mode = True
 
@@ -50,7 +55,8 @@ paper_mode = True
 
 if paper_mode:
     colors = paper_colors
-    fig = plt.figure(figsize=(2.33,1.55))
+#    fig = plt.figure(figsize=(2.33, 1.55))
+    fig = plt.figure(figsize=(4.44, 3.33))
     set_paper_rcs()
 else:
     colors = ['b', 'r', 'g', 'c', 'm', 'y', 'k', '0.5']
@@ -74,12 +80,11 @@ def plot_cdf(outname):
     plt.legend(loc=4, frameon=False, handlelength=2.5, handletextpad=0.2)
     plt.savefig("%s.pdf" % outname, format="pdf", bbox_inches="tight")
     plt.ylim(0.9, 1.0)
-    # plt.axhline(0.999, ls='--', color='k')
+    #plt.axhline(0.999, ls='--', color='k')
     plt.savefig("%s-90th.pdf" % outname, format="pdf", bbox_inches="tight")
 
 
-@static_var("label_count", 0)
-def add_plt_values(values, min_val, max_val, label, req_type):
+def add_plt_values(values, min_val, max_val, label, label_count, req_type):
     # figure out number of bins based on range
     bin_width = 1  # 7.5ns measurement accuracy
     bin_range = max_val - min_val
@@ -90,18 +95,17 @@ def add_plt_values(values, min_val, max_val, label, req_type):
     if paper_mode:
         #    plt.rc("font", size=8.0)
         label_str = label
-        if add_plt_values.label_count % 3 == 0:
+        if label_count % 3 == 0:
             style = 'solid'
-        elif add_plt_values.label_count % 3 == 1:
+        elif label_count % 3 == 1:
             style = 'dashed'
         else:
             style = 'dotted'
         (n, bins, patches) = plt.hist(values, bins=num_bins, log=False, normed=True,
                                       cumulative=True, histtype="step",
-                                      ls=style, color=colors[add_plt_values.label_count])
+                                      ls=style, color=colors[label_count])
         # hack to add line to legend
-        plt.plot([-100], [-100], label=label,
-                 color=colors[i],
+        plt.plot([-100], [-100], label=label_str, color=colors[label_count],
                  linestyle=style, lw=1.0)
         # hack to remove vertical bar
         patches[0].set_xy(patches[0].get_xy()[:-1])
@@ -112,9 +116,6 @@ def add_plt_values(values, min_val, max_val, label, req_type):
                                       label=label_str)
         # hack to remove vertical bar
         patches[0].set_xy(patches[0].get_xy()[:-1])
-        #  serialize_hist(n, bins, os.path.dirname(outname))
-    add_plt_values.label_count += 1
-
 
 
 def file_parser(fnames):
@@ -171,12 +172,14 @@ def file_parser(fnames):
             perc99 = np.percentile(values[type], 99)
             print " 99th: %f" % (np.percentile(values[type], 99))
 
-            add_plt_values(values[type], min_val, max_val, labels[i], type)
+            add_plt_values(values[type], min_val, max_val, labels[i], i, type)
 
         i += 1
 
 
 if __name__ == '__main__':
+
+    print "Ssytem Path {}".format(os.environ['PATH'])
 
     if len(sys.argv) < 2:
       print "Usage: memcached_latency_cdf.py <input file 1> <label 1> ... " \
