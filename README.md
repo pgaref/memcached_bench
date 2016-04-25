@@ -14,3 +14,8 @@
 
 ## To run memaslap benchmark:
 * ../clients/memaslap -s 127.0.0.1:11211 -S 1s -B -T2 -c 128 > out
+
+
+## For graphs, install matplotlib
+* Ubuntu: sudo apt-get install python-matplotlib
+* MacOs: pip install matplotlib
