@@ -22,7 +22,7 @@ __author__ = 'pg1712'
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from datetime import datetime
+import datetime
 import logging
 import os, sys, re
 import numpy as np
@@ -37,21 +37,6 @@ __author__ = "Panagiotis Garefalakis"
 __copyright__ = "Imperial College London"
 
 paper_mode = True
-
-# value_map = {}
-# with open(filename) as f:
-#     for line in f:
-#         values = line.strip().split(' ')
-# #        print 'key {} , Value {} '.format(values[3], values[5])
-#         # Have to convert NanoSecond timestamp-IDs stored to normal ones
-#         print 'Time {}'.format(datetime.utcfromtimestamp(float(values[3])/1000000000.0))
-#         value_map[values[3]] = values[5]
-# for v in values:
-#     try:
-#         print "TS {} Value {}", v[4] , v[6]
-#         # Do Something with x and y
-#     except IndexError:
-#         print "A line in the file doesn't have enough entries."
 
 if paper_mode:
     colors = paper_colors
@@ -126,6 +111,8 @@ def file_parser(fnames):
         # parsing
         j = 0
         minrto_outliers = 0
+        start_ts = 0
+        end_ts = 0
         values = {'GET': [], 'SET': [], 'TOTAL': []}
         for line in open(f).readlines():
             fields = [x.strip() for x in line.split()]
@@ -134,18 +121,27 @@ def file_parser(fnames):
                 continue
             req_type = fields[0]
             req_id = int(fields[3])
+            req_ts = datetime.datetime.utcfromtimestamp(float(fields[3])/1000000000.0)
             req_latency = int(fields[5])
             if req_latency > 200000:
                 minrto_outliers += 1
             values[req_type].append(req_latency)
+
+            # Start and End timestamps
+            if j == 0:
+                start_ts = req_ts
+            elif j == 5999999:
+                end_ts = req_ts
             j += 1
         print "--------------------------------------"
         print "%s (%s)" % (labels[i], f)
         print "--------------------------------------"
         print "%d total samples" % (j)
+        print "Runtime: %d seconds"% (end_ts-start_ts).total_seconds()
         print "%d outliers due to MinRTO" % (minrto_outliers)
         print "--------------------------------------"
         for type in ['TOTAL']:
+            print "Throughput: %d req/sec"% (j/(end_ts-start_ts).total_seconds())
             avg = np.mean(values[type])
             print "%s - AVG: %f" % (type, avg)
             median = np.median(values[type])
