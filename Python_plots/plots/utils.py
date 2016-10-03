@@ -95,7 +95,7 @@ paper_figsize_bigsim3 = (2.4, 1.7)
 # 8e053b red
 # 496ee2 blue
 # ef9708 orange
-paper_colors = ['#496ee2', '#8e053b', 'g', '#ef9708', '0', '#eeefff', '0.5', 'c', '0.7']
+paper_colors = ['#496ee2', '#8e053b', 'g', '#ef9708', '0', '#ff3399', '0.5', 'c', '0.7']
 
 
 # -----------------------------------

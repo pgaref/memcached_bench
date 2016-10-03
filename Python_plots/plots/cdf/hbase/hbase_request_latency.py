@@ -31,7 +31,7 @@ import matplotlib
 matplotlib.use('Agg')
 import os
 import matplotlib.pyplot as plt
-from plots.utils import *
+from Python_plots.plots.utils import *
 
 logging.basicConfig(level=logging.INFO)
 
@@ -46,7 +46,7 @@ if paper_mode:
     fig = plt.figure(figsize=(4.44, 3.33))
     set_paper_rcs()
 else:
-    colors = ['b', 'r', 'g', 'c', 'm', 'y', 'k', '0.5']
+    colors = ['b', 'r', 'g', 'c', 'm', 'k', 'y', '0.5']
     fig = plt.figure()
     set_rcs()
 
@@ -55,11 +55,11 @@ def plot_cdf(outname):
 
     plt.xticks()
     #  plt.xscale("log")
-    plt.xlim(0, 10250)
-    plt.xticks(range(0, 10500, 1000), [str(x) for x in range(0, 10500, 1000)])
+    plt.xlim(0, 60)
+    plt.xticks(range(0, 61, 10), [str(x) for x in range(0, 61, 10)])
     plt.ylim(0, 1.0)
     plt.yticks(np.arange(0.0, 1.01, 0.1), [str(x) for x in np.arange(0.0, 1.01, 0.1)])
-    plt.xlabel("Request latency [$\mu$s]")
+    plt.xlabel("Request latency [$m$s]")
     plt.ylabel("CDF")
     # print n
     # print bins
@@ -67,16 +67,16 @@ def plot_cdf(outname):
     #           ncol=3, mode="expand", frameon=True, borderaxespad=0.)
     plt.legend(loc=4, frameon=False, handlelength=2.5, handletextpad=0.2)
     plt.savefig("%s.pdf" % outname, format="pdf", bbox_inches="tight")
-    plt.ylim(0.9, 1.0)
+    # plt.ylim(0.9, 1.0)
     #plt.axhline(0.999, ls='--', color='k')
-    plt.savefig("%s-90th.pdf" % outname, format="pdf", bbox_inches="tight")
+    # plt.savefig("%s-90th.pdf" % outname, format="pdf", bbox_inches="tight")
 
 
 def add_plt_values(values, min_val, max_val, label, label_count, req_type):
     # figure out number of bins based on range
-    bin_width = 1  # 7.5ns measurement accuracy
+    bin_width = 0.01  # 7.5ns measurement accuracy
     bin_range = max_val - min_val
-    num_bins = min(250000, bin_range / bin_width)
+    num_bins = min(600000, bin_range / bin_width)
     print "Binning into %d bins and plotting..." % (num_bins)
 
     # plotting
@@ -89,7 +89,7 @@ def add_plt_values(values, min_val, max_val, label, label_count, req_type):
             style = 'dashed'
         else:
             style = 'dotted'
-        (n, bins, patches) = plt.hist(values, bins=num_bins, log=False, normed=True,
+        (n, bins, patches) = plt.hist(values, bins=num_bins, log=False, normed=1,
                                       cumulative=True, histtype="step",
                                       ls=style, color=colors[label_count])
         # hack to add line to legend
@@ -99,7 +99,7 @@ def add_plt_values(values, min_val, max_val, label, label_count, req_type):
         patches[0].set_xy(patches[0].get_xy()[:-1])
     else:
         label_str = "%s (%s)" % (label, req_type)
-        (n, bins, patches) = plt.hist(values, bins=num_bins, log=False, normed=True,
+        (n, bins, patches) = plt.hist(values, bins=num_bins, log=False, normed=1,
                                       cumulative=True, histtype="step",
                                       label=label_str)
         # hack to remove vertical bar
@@ -130,8 +130,9 @@ def file_parser(fnames):
                 continue
             req_type = fields[0]
             req_ts = datetime.datetime.fromtimestamp( float(fields[1]) / 1000.0)
-            req_latency = int(fields[2])
-            if req_latency > 200000:
+            req_latency = int(fields[2]) # Latency in micros
+            req_latency = int(req_latency/1000) # Convert to millis
+            if req_latency > 200:
                 minrto_outliers += 1
             values[req_type].append(req_latency)
 
@@ -188,7 +189,7 @@ def file_parser(fnames):
 
 if __name__ == '__main__':
 
-    print "Ssytem Path {}".format(os.environ['PATH'])
+    print "Sytem Path {}".format(os.environ['PATH'])
 
     if len(sys.argv) < 2:
       print "Usage: memcached_latency_cdf.py <input file 1> <label 1> ... " \
@@ -197,7 +198,7 @@ if __name__ == '__main__':
     if (len(sys.argv) - 1) % 2 != 0:
       outname = sys.argv[-1]
     else:
-      outname = "memcached_latency_cdf"
+      outname = "hbase_req_latency_cdf"
 
     fnames = []
     labels = []
@@ -210,3 +211,4 @@ if __name__ == '__main__':
 
     file_parser(fnames)
     plot_cdf(outname)
+# ../../../data/results/yarn/write-wB-1R.dat WorkloadB ../../../data/results/yarn/write-wC-1R.dat WorkloadC ../../../data/results/yarn/write-wD-1R.dat WorkloadD ../../../data/results/yarn/write-wE-1R.dat WorkloadE ../../../data/results/yarn/write-wF-1R.dat WorkloadF
