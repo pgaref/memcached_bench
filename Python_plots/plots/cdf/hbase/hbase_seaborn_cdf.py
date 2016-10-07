@@ -7,8 +7,9 @@ import os
 import matplotlib.pyplot as plt
 from matplotlib import rc
 
+plt.style.use('seaborn-white')
 rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica'],
-                  'serif': ['Helvetica'], 'size': 9})
+                  'serif': ['Helvetica'], 'size': 10})
 rc('text', usetex=True)
 rc('legend', fontsize=8)
 rc('axes', linewidth=0.5)
@@ -17,17 +18,22 @@ rc('lines', linewidth=0.5)
 # paper_colors = ['#496ee2', '#8e053b', 'g', '#ef9708', '0', '#ff3399', '0.5', 'c', '0.7']
 colors = ['b', 'r', 'g', 'c', 'm']
 markers = ['o', '^', 'v', 'h']
+linestyle_list = ['-', '--', '-.']
+
+workloads = ["A", "B", "C", "D", "E", "F"]
+systems_compared = ['YARN-Colocated','YARN-Cgroups','YARN-MEDEA']
 
 
 def plot_cdf(outname):
     plt.ylim((0,1))
-    plt.xlim((-1,100))
-    plt.xlabel("Request latency [$m$s]")
+    plt.xlim((-1))
+    plt.xlabel("Request latency [ms]")
     plt.ylabel("CDF")
     plt.grid(True)
     plt.legend(loc=4, frameon=True, handlelength=2.5, handletextpad=0.2)
     plt.savefig("%s.pdf"%outname, format="pdf", bbox_inches="tight")
-    plt.show()
+    # plt.show()
+    plt.clf()
 
 
 
@@ -47,9 +53,13 @@ def cdf(data, min_val, max_val, label, label_count):
     # Find the cdf
     cdf = np.cumsum(counts)
 
+    # Starting point (0,0)
+    bin_edges[0] = 0
+    cdf[0] = 0
+
     # Plot the cdf
-    plt.plot(bin_edges[0:-1], cdf, linestyle='--', marker='o', label=label, color=colors[label_count])
-    # plt.plot([-100], [-100], label=label, color=colors[label_count], alpha=0.5)
+    # plt.plot(bin_edges[0:-1], cdf, linestyle='--', marker='o', label=label, color=colors[label_count])
+    plt.plot(bin_edges[0:-1], cdf, linestyle=linestyle_list[label_count], label=label, color=colors[label_count])
 
 
 #############################################
@@ -138,22 +148,27 @@ if __name__ == '__main__':
     print "Sytem Path {}".format(os.environ['PATH'])
 
     if len(sys.argv) < 2:
-      print "Usage: memcached_latency_cdf.py <input file 1> <label 1> ... " \
-          "<input  file n> <label n> [output file]"
+      print "Usage: memcached_latency_cdf.py <input PATH 1> <label 1> ... " \
+          "<input  PATH n> <label n> [output file]"
 
     if (len(sys.argv) - 1) % 2 != 0:
       outname = sys.argv[-1]
     else:
-      outname = "hbase_latency_cdf"
+      outname = "hbase_latency_cdf_"
 
-    fnames = []
+    fpaths = []
     labels = []
     for i in range(0, len(sys.argv) - 1, 2):
-      fnames.append(sys.argv[1 + i])
+      fpaths.append(sys.argv[1 + i])
       labels.append(sys.argv[2 + i])
 
-    print 'Files given: {}'.format("".join(fname for fname in fnames))
+    print 'PATH given: {}'.format("".join(fname for fname in fpaths))
     print 'Labels given: {}'.format("".join(label for label in labels))
 
-    file_parser(fnames)
-    plot_cdf(outname)
+    for workload in workloads:
+        fnames = []
+        for path in  fpaths:
+            fnames.append(path + "write-w"+workload+"-10R.dat")
+        print "Processing.. "+ str(fnames)
+        file_parser(fnames)
+        plot_cdf(outname+"w"+workload)

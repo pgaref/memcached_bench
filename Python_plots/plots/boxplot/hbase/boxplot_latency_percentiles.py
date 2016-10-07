@@ -37,7 +37,7 @@ plt.style.use('seaborn-white')
 rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica'],
                   'serif': ['Helvetica'], 'size': 10})
 rc('text', usetex=True)
-rc('legend', fontsize=10)
+rc('legend', fontsize=8)
 rc('axes', linewidth=0.5)
 rc('lines', linewidth=0.5)
 
