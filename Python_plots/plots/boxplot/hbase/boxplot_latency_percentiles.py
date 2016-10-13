@@ -51,9 +51,9 @@ data = {}
 # data['workloadA'] = {}
 
 # ALL workloads
-# workloads = ["A", "B", "C", "D", "E", "F"]
-systems_compared = ['YARN-Colocated','YARN-Cgroups','YARN-MEDEA']
-workloads = ["A", "B"]
+workloads = ["A", "B", "C", "D", "E", "F"]
+systems_compared = ['YARN', 'YARN-Cgroups', 'MEDEA']
+# workloads = ["A", "B"]
 
 
 def plot_boxes(outname):
