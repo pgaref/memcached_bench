@@ -7,7 +7,7 @@ import json, io, os
 def writefileheaders(filename, json_data):
     with io.open(filename, 'w', encoding='utf-8') as f:
         for bolt in range(len(data["bolts"])):
-            f.write(unicode("boltId, executeLatency(s), processLatency(s), "))
+            f.write(unicode("boltId, emitted, executeLatency(s), processLatency(s), "))
         for spout in range(len(data["spouts"])):
             f.write(unicode("spoutId, completeLatency(s), "))
         f.write(unicode("tasksTotal, completeLatency(s), uptime"))
@@ -23,6 +23,7 @@ def dump2file(filename, json_data):
         # f.write(unicode(json.dumps(json_data, ensure_ascii=False)))
         for bolt in range(len(data["bolts"])):
             f.write(unicode(data["bolts"][bolt]["boltId"])+", ")
+            f.write(unicode(data["bolts"][bolt]["emitted"])+", ")
             f.write(unicode(data["bolts"][bolt]["executeLatency"])+", ")
             f.write(unicode(data["bolts"][bolt]["processLatency"])+", ")
 
