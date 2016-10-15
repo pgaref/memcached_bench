@@ -35,7 +35,7 @@ from matplotlib import rc
 
 
 
-# plt.style.use('seaborn-white')
+plt.style.use('seaborn-white')
 rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica'],
                   'serif': ['Helvetica'], 'size': 10})
 rc('text', usetex=True)
@@ -54,7 +54,7 @@ throughput_data = {}
 
 # ALL workloads
 workloads = ["A", "B", "C", "D", "E", "F"]
-systems_compared = ['YARN-Colocated','YARN-Cgroups','YARN-MEDEA']
+systems_compared = ['YARN','YARN-Cgroups','MEDEA']
 # workloads = ["A", "B"]
 
 
@@ -69,8 +69,8 @@ def plot_boxes(outname):
         ax1.set_ylabel("Throughput [ops/s]")
         props = dict(alpha=0.5, edgecolors='none')
 
-        print "Latency Len: " + str(len(latency_data[name]['YARN-Colocated']))
-        print "Throughput len: "+ str(len(throughput_data[name]['YARN-Colocated']))
+        print "Latency Len: " + str(len(latency_data[name]['YARN']))
+        print "Throughput len: "+ str(len(throughput_data[name]['YARN']))
 
         i = 0
         handles = []

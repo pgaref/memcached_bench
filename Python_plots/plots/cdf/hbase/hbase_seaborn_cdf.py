@@ -21,7 +21,7 @@ markers = ['o', '^', 'v', 'h']
 linestyle_list = ['-', '--', '-.']
 
 workloads = ["A", "B", "C", "D", "E", "F"]
-systems_compared = ['YARN-Colocated','YARN-Cgroups','YARN-MEDEA']
+systems_compared = ['YARN', 'YARN-Cgroups', 'MEDEA']
 
 
 def plot_cdf(outname):
