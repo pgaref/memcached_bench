@@ -32,14 +32,15 @@ import os
 
 import matplotlib.pyplot as plt
 from matplotlib import rc
-
+from matplotlib import dates
 
 
 plt.style.use('seaborn-white')
+plt.style.use('seaborn-white')
 rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica'],
-                  'serif': ['Helvetica'], 'size': 10})
+                  'serif': ['Helvetica'], 'size': 14})
 rc('text', usetex=True)
-rc('legend', fontsize=8)
+rc('legend', fontsize=12)
 rc('axes', linewidth=0.5)
 rc('lines', linewidth=0.5)
 
@@ -50,59 +51,58 @@ colors = ['b', 'r', 'g', 'c', 'm']
 
 # ALL DATA
 latency_data = {}
-throughput_data = {}
 
 # ALL workloads
-workloads = ["A", "B", "C", "D", "E", "F"]
 systems_compared = ['YARN', 'YARN-Cgroups', 'MEDEA']
-# workloads = ["A", "B"]
+workloads = ["A", "B", "C", "D", "E", "F"]
+# systems_compared = ['YARN']
+# workloads = ["A"]
 
 
-def plot_boxes(outname):
+def plot_ts(outname):
 
     for name in workloads:
         fig = plt.figure()
         # fig, axes = plt.subplots(ncols=len(workloads), sharey=True)
         # fig.subplots_adjust(wspace=0)
         ax1 = fig.add_subplot(121)
-        ax1.set_xlabel("Latency 99th percentile [ms]")
-        ax1.set_ylabel("Throughput [ops/s]")
-        props = dict(alpha=0.5, edgecolors='none')
-
-        print "Latency Len: " + str(len(latency_data[name]['YARN']))
-        print "Throughput len: "+ str(len(throughput_data[name]['YARN']))
+        ax1.set_xlabel("Time (minutes)")
+        ax1.set_ylabel("Request Latency [ms]")
 
         i = 0
         handles = []
         for item in systems_compared:
-            # s = np.random.randint(50,200)
-            handles.append(ax1.scatter(latency_data[name][item], throughput_data[name][item], color=colors[i], s=10, **props))
-            # ax1.scatter(latency_data["A"][item],throughput_data["A"][item], color=colors[i], s=5,edgecolor='none')
-            # ax1.set_aspect(1./ax1.get_data_ratio()) # make axes square
+            #Timestamps
+            start_ts.replace(minute=0, second=0, microsecond=0)
+            x = np.array([start_ts + datetime.timedelta(seconds=j) for j in range(len(latency_data[name][item]))])
+            y = latency_data[name][item]
+            plt.plot(x, y, color=colors[i], label=item)
             i += 1
-        ymin, ymax = ax1.get_ylim()
-        ax1.set_ylim(bottom=0, top=ymax)
-        ax1.set_xlim(0,250)
-        ax1.legend(handles, systems_compared)
         ax1.grid(True)
-        ax1.set_aspect(1./ax1.get_data_ratio())
-
+        ax1.legend(loc='upper right')
+        hfmt = dates.DateFormatter('%M:%S')
+        ax1.xaxis.set_major_locator(dates.MinuteLocator())
+        ax1.xaxis.set_major_formatter(hfmt)
+        ax1.set_ylim(bottom=0)
+        # fig.autofmt_xdate()
+        ax1.set_xticklabels(ax1.xaxis.get_majorticklabels(), rotation=90)
         print "Done with plots"
         plt.savefig("%s.pdf"%(outname+"_w"+name), format="pdf", bbox_inches="tight")
         print "Done with Writing to file"
+        # plt.show()
         plt.clf()
-    # plt.show()
 
 
-def add_values(latency_values, throughput_values, workload, label):
+def add_values(latency_values, workload, label):
     latency_data[workload][label] = latency_values
-    throughput_data[workload][label] = throughput_values
 
 
 #############################################
 # Message Format:
 # {READ | INSERT | UPDATE},TIMESTAMP,LATENCY (us)
 #############################################
+start_ts = 0
+end_ts = 0
 def file_parser(fnames, workload):
     i = 0
     for f in fnames:
@@ -111,8 +111,6 @@ def file_parser(fnames, workload):
         # parsing
         j = 0
         minrto_outliers = 0
-        start_ts = 0
-        end_ts = 0
 
         req_count = 0
         current_ts = 0
@@ -122,7 +120,7 @@ def file_parser(fnames, workload):
         throughput_values = []
         for line in open(f).readlines():
             fields = [x.strip() for x in line.split(",")]
-            if fields[0] not in ["READ", "INSERT", "UPDATE"]:
+            if fields[0] not in ["READ", "INSERT", "UPDATE", "SCAN", "READ-MODIFY-WRITE"]:
                 if (fields[0] not in ["CLEANUP"]) and (fields[1] not in ["latency"]):
                     print 'TYPE: %s -> NOT KNOWN '% fields[0]
                 continue
@@ -155,8 +153,10 @@ def file_parser(fnames, workload):
 
             # Start and End timestamps
             if j == 0:
+                global start_ts
                 start_ts = req_ts
             elif j != 0:
+                global end_ts
                 end_ts = req_ts
             j += 1
         print "--------------------------------------"
@@ -196,7 +196,7 @@ def file_parser(fnames, workload):
         perc99 = np.percentile(all_values, 99)
         print " 99th: %f" % (np.percentile(all_values, 99))
 
-        add_values(latency_perc_values, throughput_values, workload, labels[i])
+        add_values(latency_perc_values, workload, labels[i])
 
         i += 1
 
@@ -206,13 +206,13 @@ if __name__ == '__main__':
     print "Sytem Path {}".format(os.environ['PATH'])
 
     if len(sys.argv) < 2:
-      print "Usage: throughput_histo.py <input PATH> <label 1> ... " \
+      print "Usage: throughput_ts.py <input PATH> <label 1> ... " \
           "<input PATH n> <label n> [output file]"
 
     if (len(sys.argv) - 1) % 2 != 0:
       outname = sys.argv[-1]
     else:
-      outname = "hbase_throughput_timeseries"
+      outname = "hbase_latency_ts"
 
     fpaths = []
     labels = []
@@ -229,7 +229,6 @@ if __name__ == '__main__':
             fnames.append(path + "write-w"+workload+"-10R.dat")
         print "Processing.. "+ str(fnames)
         latency_data[workload] = {}
-        throughput_data[workload] = {}
         file_parser(fnames, workload)
 
-    plot_boxes(outname)
+    plot_ts(outname)
