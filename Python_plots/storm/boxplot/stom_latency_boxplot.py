@@ -33,6 +33,7 @@ import os
 import matplotlib.pyplot as plt
 from matplotlib import rc
 
+plt.style.use('seaborn-white')
 rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica'],
                   'serif': ['Helvetica'], 'size': 14})
 rc('text', usetex=True)
@@ -63,7 +64,7 @@ def plot_boxes(outname):
 
     # for ax, name in zip(axes, workloads):
     # whis from 5th to 99th precentile
-    bt = axes.boxplot(x=[data[item] for item in systems_compared], whis=1.4, sym="+")
+    bt = axes.boxplot(x=[data[item] for item in systems_compared], whis=[5, 99], sym="+")
     plt.setp(bt['fliers'], color='red', marker='+')
     xtickNames = axes.set(xticklabels=systems_compared)
     plt.setp(xtickNames, rotation=90, fontsize=12)

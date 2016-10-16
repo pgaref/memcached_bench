@@ -9,11 +9,11 @@ from matplotlib import rc
 
 plt.style.use('seaborn-white')
 rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica'],
-                  'serif': ['Helvetica'], 'size': 10})
+                  'serif': ['Helvetica'], 'size': 14})
 rc('text', usetex=True)
-rc('legend', fontsize=8)
-rc('axes', linewidth=0.5)
-rc('lines', linewidth=0.5)
+rc('legend', fontsize=12)
+rc('axes', linewidth=1)
+rc('lines', linewidth=1)
 
 # paper_colors = ['#496ee2', '#8e053b', 'g', '#ef9708', '0', '#ff3399', '0.5', 'c', '0.7']
 colors = ['b', 'r', 'g', 'c', 'm']
@@ -79,7 +79,7 @@ def file_parser(fnames):
         values = []
         for line in open(f).readlines():
             fields = [x.strip() for x in line.split(",")]
-            if fields[0] not in ["READ", "INSERT", "UPDATE"]:
+            if fields[0] not in ["READ", "INSERT", "UPDATE", "SCAN", "READ-MODIFY-WRITE"]:
                 if (fields[0] not in ["CLEANUP"]) and (fields[1] not in ["latency"]):
                     print 'TYPE: %s -> NOT KNOWN '% fields[0]
                 continue

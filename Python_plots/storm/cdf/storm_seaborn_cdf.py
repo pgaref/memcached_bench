@@ -7,7 +7,7 @@ import os
 import matplotlib.pyplot as plt
 from matplotlib import rc
 
-# plt.style.use('seaborn-white')
+plt.style.use('seaborn-white')
 rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica'],
                   'serif': ['Helvetica'], 'size': 14})
 rc('text', usetex=True)
@@ -35,7 +35,7 @@ def plot_cdf(outname):
     plt.show()
 
 
-def cdf(data, min_val, max_val, label, label_count):
+def cdf(data, label_count, label):
 
     data_size=len(data)
 
@@ -51,13 +51,9 @@ def cdf(data, min_val, max_val, label, label_count):
     # Find the cdf
     cdf = np.cumsum(counts)
 
-    # Starting point (0,0)
-    bin_edges[0] = 0
-    cdf[0] = 0
-
     # Plot the cdf
-    # plt.plot(bin_edges[0:-1], cdf, linestyle='--', marker='o', label=label, color=colors[label_count])
-    plt.plot(bin_edges[0:-1], cdf, linestyle=linestyle_list[label_count], label=label, color=colors[label_count])
+    plt.plot(bin_edges[0:-1], cdf,linestyle='--', marker="o", label=label, color=colors[label_count])
+
 
 
 #############################################
@@ -121,7 +117,7 @@ def file_parser(fnames):
         perc99 = np.percentile(values, 99)
         print " 99th: %f" % (np.percentile(values, 99))
 
-        cdf(values, min_val, max_val, labels[i], i)
+        cdf(values, i, labels[i])
 
         i += 1
 

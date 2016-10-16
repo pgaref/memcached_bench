@@ -37,11 +37,11 @@ from matplotlib import rc
 
 plt.style.use('seaborn-white')
 rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica'],
-                  'serif': ['Helvetica'], 'size': 14})
+                  'serif': ['Helvetica'], 'size': 10})
 rc('text', usetex=True)
-rc('legend', fontsize=12)
-rc('axes', linewidth=1)
-rc('lines', linewidth=1)
+rc('legend', fontsize=8)
+rc('axes', linewidth=0.5)
+rc('lines', linewidth=0.5)
 
 
 # paper_colors = ['#496ee2', '#8e053b', 'g', '#ef9708', '0', '#ff3399', '0.5', 'c', '0.7']
@@ -122,7 +122,7 @@ def file_parser(fnames, workload):
         throughput_values = []
         for line in open(f).readlines():
             fields = [x.strip() for x in line.split(",")]
-            if fields[0] not in ["READ", "INSERT", "UPDATE", "SCAN", "READ-MODIFY-WRITE"]:
+            if fields[0] not in ["READ", "INSERT", "UPDATE"]:
                 if (fields[0] not in ["CLEANUP"]) and (fields[1] not in ["latency"]):
                     print 'TYPE: %s -> NOT KNOWN '% fields[0]
                 continue
@@ -206,13 +206,13 @@ if __name__ == '__main__':
     print "Sytem Path {}".format(os.environ['PATH'])
 
     if len(sys.argv) < 2:
-      print "Usage: boxplot_latency_percentiles.py <input PATH> <label 1> ... " \
+      print "Usage: throughput_histo.py <input PATH> <label 1> ... " \
           "<input PATH n> <label n> [output file]"
 
     if (len(sys.argv) - 1) % 2 != 0:
       outname = sys.argv[-1]
     else:
-      outname = "hbase_latency_throughput_scatter"
+      outname = "hbase_throughput_timeseries"
 
     fpaths = []
     labels = []
