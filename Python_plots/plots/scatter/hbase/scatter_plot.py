@@ -42,6 +42,7 @@ rc('text', usetex=True)
 rc('legend', fontsize=12)
 rc('axes', linewidth=1)
 rc('lines', linewidth=1)
+rc('legend', frameon=True)
 
 
 # paper_colors = ['#496ee2', '#8e053b', 'g', '#ef9708', '0', '#ff3399', '0.5', 'c', '0.7']

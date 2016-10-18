@@ -53,6 +53,7 @@ data = {}
 # ALL workloads
 workloads = ["A", "B", "C", "D", "E", "F"]
 systems_compared = ['YARN', 'YARN-Cgroups', 'MEDEA']
+systems_labels= ['YARN', 'YARN \n Cgroups', 'MEDEA']
 # workloads = ["A", "B"]
 
 
@@ -65,7 +66,7 @@ def plot_boxes(outname):
     for ax, name in zip(axes, workloads):
         # whis from 5th to 99th precentile
         ax.boxplot(x=[data[name][item] for item in systems_compared], whis=[5, 99], sym=" ")
-        xtickNames = ax.set(xticklabels=systems_compared)
+        xtickNames = ax.set(xticklabels=systems_labels)
         plt.setp(xtickNames, rotation=90, fontsize=8)
 
         workloadXtick = ax.set(xlabel='workload'+name)

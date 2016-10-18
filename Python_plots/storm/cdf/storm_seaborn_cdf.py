@@ -21,13 +21,14 @@ markers = ['o', '^', 'v', 'h']
 linestyle_list = ['-', '--', '-.']
 
 # workloads = ["A", "B", "C", "D", "E", "F"]
-systems_compared = ['No Constraints', 'Intra-Affinity', 'Inter-Affinity']
+systems_compared = ['YARN', 'MEDEA (intra-only)', 'MEDEA']
+systems_labels = ['YARN', 'MEDEA \n (intra-only)', 'MEDEA']
 
 
 def plot_cdf(outname):
     plt.ylim((0,1))
     plt.xlim((-1))
-    plt.xlabel("Operator latency [ms]")
+    plt.xlabel("Cache request latency [ms]")
     plt.ylabel("CDF")
     plt.grid(True)
     plt.legend(loc=4, frameon=True, handlelength=2.5, handletextpad=0.2)
@@ -52,7 +53,7 @@ def cdf(data, label_count, label):
     cdf = np.cumsum(counts)
 
     # Plot the cdf
-    plt.plot(bin_edges[0:-1], cdf,linestyle='--', marker="o", label=label, color=colors[label_count])
+    plt.plot(bin_edges[0:-1], cdf,linestyle='--', marker="o", label=systems_labels[label_count], color=colors[label_count])
 
 
 

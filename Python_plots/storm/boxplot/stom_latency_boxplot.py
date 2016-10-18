@@ -52,7 +52,8 @@ data = {}
 
 # ALL workloads
 # workloads = ["A", "B", "C", "D", "E", "F"]
-systems_compared = ['No Constraints', 'Intra-Affinity', 'Inter-Affinity']
+systems_compared = ['YARN', 'MEDEA (intra-only)', 'MEDEA']
+systems_labels = ['YARN', 'MEDEA \n (intra-only)', 'MEDEA']
 # workloads = ["A", "B"]
 
 
@@ -60,13 +61,13 @@ def plot_boxes(outname):
     fig, axes = plt.subplots(ncols=1, sharey=True)
     fig.subplots_adjust(wspace=0)
     # fig.text(0.5, 0.04, "YCSB Workloads", ha='center')
-    fig.text(0.04, 0.5, "Operator latency [ms]", va='center', rotation='vertical')
+    fig.text(0.04, 0.5, "Cache request latency [ms]", va='center', rotation='vertical')
 
     # for ax, name in zip(axes, workloads):
     # whis from 5th to 99th precentile
     bt = axes.boxplot(x=[data[item] for item in systems_compared], whis=[5, 99], sym="+")
     plt.setp(bt['fliers'], color='red', marker='+')
-    xtickNames = axes.set(xticklabels=systems_compared)
+    xtickNames = axes.set(xticklabels=systems_labels)
     plt.setp(xtickNames, rotation=90, fontsize=12)
 
     # workloadXtick = axes.set(xlabel='Placement Constraints')
