@@ -3,39 +3,15 @@ import numpy as np
 import datetime
 import sys
 import os
+import plots.utils as utils
 
-import matplotlib.pyplot as plt
-from matplotlib import rc
 
-plt.style.use('seaborn-white')
-rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica'],
-                  'serif': ['Helvetica'], 'size': 14})
-rc('text', usetex=True)
-rc('legend', fontsize=12)
-rc('axes', linewidth=1)
-rc('lines', linewidth=1)
-
-# paper_colors = ['#496ee2', '#8e053b', 'g', '#ef9708', '0', '#ff3399', '0.5', 'c', '0.7']
-colors = ['b', 'r', 'g', 'c', 'm']
+colors = ['r', 'g', 'b', 'c', 'm']
 markers = ['o', '^', 'v', 'h']
-linestyle_list = ['-', '--', '-.']
+linestyle_list = ['--', '-.', '-']
 
 workloads = ["A", "B", "C", "D", "E", "F"]
 systems_compared = ['YARN', 'YARN-Cgroups', 'MEDEA']
-
-
-def plot_cdf(outname):
-    plt.ylim((0,1))
-    plt.xlim((-1))
-    plt.xlabel("Request latency [ms]")
-    plt.ylabel("CDF")
-    plt.grid(True)
-    plt.legend(loc=4, frameon=True, handlelength=2.5, handletextpad=0.2)
-    plt.savefig("%s.pdf"%outname, format="pdf", bbox_inches="tight")
-    # plt.show()
-    plt.clf()
-
-
 
 def cdf(data, min_val, max_val, label, label_count):
 
@@ -59,7 +35,7 @@ def cdf(data, min_val, max_val, label, label_count):
 
     # Plot the cdf
     # plt.plot(bin_edges[0:-1], cdf, linestyle='--', marker='o', label=label, color=colors[label_count])
-    plt.plot(bin_edges[0:-1], cdf, linestyle=linestyle_list[label_count], label=label, color=colors[label_count])
+    utils.plt.plot(bin_edges[0:-1], cdf, linestyle=linestyle_list[label_count], label=label, color=colors[label_count])
 
 
 #############################################
@@ -171,4 +147,4 @@ if __name__ == '__main__':
             fnames.append(path + "write-w"+workload+"-10R.dat")
         print "Processing.. "+ str(fnames)
         file_parser(fnames)
-        plot_cdf(outname+"w"+workload)
+        utils.plot_cdf(outname+"w"+workload)

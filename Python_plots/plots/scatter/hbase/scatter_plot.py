@@ -23,30 +23,11 @@ __copyright__ = "Imperial College London"
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import seaborn as sns
 import numpy as np
 import datetime
-import random
 import sys
 import os
-
-import matplotlib.pyplot as plt
-from matplotlib import rc
-
-
-
-plt.style.use('seaborn-white')
-rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica'],
-                  'serif': ['Helvetica'], 'size': 14})
-rc('text', usetex=True)
-rc('legend', fontsize=12)
-rc('axes', linewidth=1)
-rc('lines', linewidth=1)
-rc('legend', frameon=True)
-
-
-# paper_colors = ['#496ee2', '#8e053b', 'g', '#ef9708', '0', '#ff3399', '0.5', 'c', '0.7']
-colors = ['b', 'r', 'g', 'c', 'm']
+import plots.utils as utils
 
 
 # ALL DATA
@@ -58,41 +39,6 @@ workloads = ["A", "B", "C", "D", "E", "F"]
 systems_compared = ['YARN', 'YARN-Cgroups', 'MEDEA']
 # workloads = ["A", "B"]
 
-
-def plot_boxes(outname):
-
-    for name in workloads:
-        fig = plt.figure()
-        # fig, axes = plt.subplots(ncols=len(workloads), sharey=True)
-        # fig.subplots_adjust(wspace=0)
-        ax1 = fig.add_subplot(121)
-        ax1.set_xlabel("Latency 99th percentile [ms]")
-        ax1.set_ylabel("Throughput [ops/s]")
-        props = dict(alpha=0.5, edgecolors='none')
-
-        print "Latency Len: " + str(len(latency_data[name]['YARN']))
-        print "Throughput len: "+ str(len(throughput_data[name]['YARN']))
-
-        i = 0
-        handles = []
-        for item in systems_compared:
-            # s = np.random.randint(50,200)
-            handles.append(ax1.scatter(latency_data[name][item], throughput_data[name][item], color=colors[i], s=10, **props))
-            # ax1.scatter(latency_data["A"][item],throughput_data["A"][item], color=colors[i], s=5,edgecolor='none')
-            # ax1.set_aspect(1./ax1.get_data_ratio()) # make axes square
-            i += 1
-        ymin, ymax = ax1.get_ylim()
-        ax1.set_ylim(bottom=0, top=ymax)
-        ax1.set_xlim(0,250)
-        ax1.legend(handles, systems_compared)
-        ax1.grid(True)
-        ax1.set_aspect(1./ax1.get_data_ratio())
-
-        print "Done with plots"
-        plt.savefig("%s.pdf"%(outname+"_w"+name), format="pdf", bbox_inches="tight")
-        print "Done with Writing to file"
-        plt.clf()
-    # plt.show()
 
 
 def add_values(latency_values, throughput_values, workload, label):
@@ -233,4 +179,5 @@ if __name__ == '__main__':
         throughput_data[workload] = {}
         file_parser(fnames, workload)
 
-    plot_boxes(outname)
+    utils.plot_scatter(outname, workloads=workloads, latency_data=latency_data,
+                     throughput_data=throughput_data, systems_compared=systems_compared)

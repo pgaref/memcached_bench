@@ -1,10 +1,15 @@
 __author__ = 'pg1712'
 
-from matplotlib import use, rc
-
-use('Agg')
+import matplotlib
+# matplotlib.use('PDF')
+#matplotlib.use('Agg')
+from matplotlib import rc
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as fnt
 import numpy as np
+
+
+textsize = 34
 
 
 # plot saving utility function
@@ -20,103 +25,93 @@ def set_leg_fontsize(size):
     rc('legend', fontsize=size)
 
 
-def set_paper_rcs():
-    rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica'],
-                  'serif': ['Helvetica'], 'size': 9})
-    rc('text', usetex=True)
-    rc('legend', fontsize=8)
-#    rc('figure', figsize=(3.33, 2.22))
-    rc('figure', figsize=(5.55, 4.44))
-    #  rc('figure.subplot', left=0.10, top=0.90, bottom=0.12, right=0.95)
-    rc('axes', linewidth=0.5)
-    rc('lines', linewidth=0.5)
+def prepare_legend(legend_loc=1, legend_ncol=1):
+    rc('legend', frameon=True)
+    legfont = fnt.FontProperties()
+    legfont.set_size('small')
+    leg = plt.legend(loc=legend_loc, ncol=legend_ncol, fancybox=True, prop=legfont)
+    leg.get_frame().set_alpha(0.7)
+    return
 
 
 def set_rcs():
-    rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica'],
-                  'serif': ['Times'], 'size': 12})
-    rc('text', usetex=True)
-    rc('legend', fontsize=7)
-    rc('figure', figsize=(6, 4))
-    rc('figure.subplot', left=0.10, top=0.90, bottom=0.12, right=0.95)
-    rc('axes', linewidth=0.5)
-    rc('lines', linewidth=0.5)
+    plt.style.use('seaborn-white')
+    plt.rc('text', usetex=True)
+    plt.rc('font', **{'family': 'serif', 'serif': ['Helvetica'], 'size': textsize})
+
+    # rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica'], 'size': textsize})
+    # rc('text.latex', preamble=r'\usepackage{cmbright}')
+
+    plt.rcParams['font.size'] = textsize
+    plt.rcParams['xtick.labelsize'] = textsize - 4
+    plt.rcParams['ytick.labelsize'] = textsize - 4
+    plt.grid(True)
+    # plt.gca().yaxis.grid(True, alpha=0.85)
 
 
-def append_or_create(d, i, e):
-    if not i in d:
-        d[i] = [e]
-    else:
-        d[i].append(e)
+def plot_cdf(outname):
+    plt.ylim((0,1))
+    plt.yticks(np.arange(0, 1.1, 0.1))
+    plt.xlim((-1))
+    plt.xlabel("Request latency [ms]", fontsize=matplotlib.rcParams['font.size'])
+    plt.ylabel("CDF", fontsize=matplotlib.rcParams['font.size'])
+
+    # Global style configuration
+    set_rcs()
+    prepare_legend(legend_loc=4)
+
+    writeout("%s"%outname)
+    # plt.show()
+
+    plt.clf()
 
 
-def add_or_create(d, i, e):
-    if not i in d:
-        d[i] = e
-    else:
-        d[i] = d[i] + e
+def plot_scatter(outname, workloads, latency_data, throughput_data, systems_compared):
+    scatter_colors = ['r', 'g', 'b', 'c', 'm']
+    scatter_markets = ['v', 'x', 'o', '*']
 
+    # Global style configuration
+    set_rcs()
 
-# event log constants
-RESOURCE_UTILIZATION_SAMPLE = 0
-TX_SUCCEEDED = 1
-TX_FAILED = 2
-COLLECTION_ENDING = 3
-VMS_CHANGED_STATE = 4
-SCHEDULING_OUTCOME = 5
-COLLECTION_SUBMITTED = 6
-SCHEDULING_TIME = 7
-ZOMBIE_COLLECTION_DROPPED = 8
-OVERLAP_COLLECTION_DROPPED = 9
-COLLECTION_TRUNCATED = 10
-CELL_STATE_SETUP = 11
-END_ONLY_ENDS = 12
+    for name in workloads:
 
-ARRIVAL_SAMPLE = 100
-LEAVING_SAMPLE = 101
-RES_LIMIT_SAMPLE = 102
-ACTIVE_SAMPLE = 103
-COLLECTION_ARRIVING_EVENT = 104
-COLLECTION_LEAVING_EVENT = 105
+        plt.xlabel("Latency 99th percentile [ms]", fontsize=matplotlib.rcParams['font.size'])
+        plt.ylabel("Throughput [Kops/s]", fontsize=matplotlib.rcParams['font.size'])
+        props = dict(alpha=0.5, edgecolors='none')
 
-MAPREDUCE_PREDICTION = 200
-MAPREDUCE_ORIGINAL_RUNTIME = 201
-MAPREDUCE_RESOURCE_ADJUSTMENT = 202
-MAPREDUCE_BASE_RUNTIME = 203
+        # print "Latency Len: " + str(len(latency_data[name]['YARN']))
+        # print "Throughput len: "+ str(len(throughput_data[name]['YARN']))
 
-paper_figsize_small = (1.1, 1.1)
-paper_figsize_small_square = (1.5, 1.5)
-paper_figsize_medium = (2, 1.33)
-paper_figsize_medium_square = (2, 2)
-# paper_figsize_medium = (1.66, 1.1)
-paper_figsize_large = (3.33, 2.22)
-paper_figsize_bigsim3 = (2.4, 1.7)
+        i = 0
+        handles = []
+        for item in systems_compared:
+            # s = np.random.randint(50,200)
+            plt.scatter(latency_data[name][item], throughput_data[name][item], marker=scatter_markets[i],
+                                       color=scatter_colors[i], s=50, label=item, **props)
+            # ax1.scatter(latency_data["A"][item],throughput_data["A"][item], color=colors[i], s=5,edgecolor='none')
+            # ax1.set_aspect(1./ax1.get_data_ratio()) # make axes square
+            i += 1
+        # axes
+        axes = plt.gca()
+        ymin, ymax = axes.get_ylim()
+        plt.ylim(0,ymax)
+        plt.xlim(0,250)
 
-# 8e053b red
-# 496ee2 blue
-# ef9708 orange
-paper_colors = ['#496ee2', '#8e053b', 'g', '#ef9708', '0', '#ff3399', '0.5', 'c', '0.7']
+        #Convert y Values using K instead
+        locs, labels = plt.yticks()
+        tick_labels = []
+        for tick in locs:
+            if (int(tick)/1000) > 0:
+                tick_labels.append(str(int(tick)/1000)) # + "K")
+            else:
+                tick_labels.append(str(float(tick) / 1000))  # + "K")
+        plt.yticks(locs, tick_labels)
 
+        # Global style configuration
+        set_rcs()
+        prepare_legend(legend_loc=1)
 
-# -----------------------------------
-
-def think_time_fn(x, y, s):
-    return x + y * s
-
-
-# -----------------------------------
-
-def get_mad(median, data):
-    devs = [abs(x - median) for x in data]
-    mad = np.median(devs)
-    return mad
-
-
-# -----------------------------------
-
-def static_var(varname, value):
-    def decorate(func):
-        setattr(func, varname, value)
-        return func
-
-    return decorate
+        writeout("%s"%(outname+"_w"+name))
+        print "Done with Writing to file"
+        plt.clf()
+    # plt.show()
