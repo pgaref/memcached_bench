@@ -51,7 +51,6 @@ colors = ['b', 'r', 'g', 'c', 'm']
 
 # ALL DATA
 latency_data = {}
-throughput_data = {}
 
 # ALL workloads
 systems_compared = ['YARN', 'YARN-Cgroups', 'MEDEA']
@@ -68,15 +67,15 @@ def plot_ts(outname):
         # fig.subplots_adjust(wspace=0)
         ax1 = fig.add_subplot(121)
         ax1.set_xlabel("Time (minutes)")
-        ax1.set_ylabel("Throughput [ops/s]")
+        ax1.set_ylabel("Request Latency [ms]")
 
         i = 0
         handles = []
         for item in systems_compared:
             #Timestamps
             start_ts.replace(minute=0, second=0, microsecond=0)
-            x = np.array([start_ts + datetime.timedelta(seconds=j) for j in range(len(throughput_data[name][item]))])
-            y = throughput_data[name][item]
+            x = np.array([start_ts + datetime.timedelta(seconds=j) for j in range(len(latency_data[name][item]))])
+            y = latency_data[name][item]
             plt.plot(x, y, color=colors[i], label=item)
             i += 1
         ax1.grid(True)
@@ -85,8 +84,8 @@ def plot_ts(outname):
         ax1.xaxis.set_major_locator(dates.MinuteLocator())
         ax1.xaxis.set_major_formatter(hfmt)
         ax1.set_ylim(bottom=0)
-        fig.autofmt_xdate()
-        # ax1.set_xticklabels(ax1.xaxis.get_majorticklabels(), rotation=90)
+        # fig.autofmt_xdate()
+        ax1.set_xticklabels(ax1.xaxis.get_majorticklabels(), rotation=90)
         print "Done with plots"
         plt.savefig("%s.pdf"%(outname+"_w"+name), format="pdf", bbox_inches="tight")
         print "Done with Writing to file"
@@ -94,9 +93,8 @@ def plot_ts(outname):
         plt.clf()
 
 
-def add_values(latency_values, throughput_values, workload, label):
+def add_values(latency_values, workload, label):
     latency_data[workload][label] = latency_values
-    throughput_data[workload][label] = throughput_values
 
 
 #############################################
@@ -198,7 +196,7 @@ def file_parser(fnames, workload):
         perc99 = np.percentile(all_values, 99)
         print " 99th: %f" % (np.percentile(all_values, 99))
 
-        add_values(latency_perc_values, throughput_values, workload, labels[i])
+        add_values(latency_perc_values, workload, labels[i])
 
         i += 1
 
@@ -208,13 +206,13 @@ if __name__ == '__main__':
     print "Sytem Path {}".format(os.environ['PATH'])
 
     if len(sys.argv) < 2:
-      print "Usage: throughput_ts.py <input PATH> <label 1> ... " \
+      print "Usage: hbase_timeseries_throughput_ts.py <input PATH> <label 1> ... " \
           "<input PATH n> <label n> [output file]"
 
     if (len(sys.argv) - 1) % 2 != 0:
       outname = sys.argv[-1]
     else:
-      outname = "hbase_throughput_ts"
+      outname = "hbase_latency_ts"
 
     fpaths = []
     labels = []
@@ -231,7 +229,6 @@ if __name__ == '__main__':
             fnames.append(path + "write-w"+workload+"-10R.dat")
         print "Processing.. "+ str(fnames)
         latency_data[workload] = {}
-        throughput_data[workload] = {}
         file_parser(fnames, workload)
 
     plot_ts(outname)

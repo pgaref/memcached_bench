@@ -1,9 +1,9 @@
 __author__ = 'pg1712'
 
+from matplotlib import use, rc
+use('Agg')
 import matplotlib
-# matplotlib.use('PDF')
 #matplotlib.use('Agg')
-from matplotlib import rc
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fnt
 import numpy as np
@@ -34,19 +34,24 @@ def prepare_legend(legend_loc=1, legend_ncol=1):
     return
 
 
-def set_rcs():
-    plt.style.use('seaborn-white')
-    plt.rc('text', usetex=True)
-    plt.rc('font', **{'family': 'serif', 'serif': ['Helvetica'], 'size': textsize})
+def set_rcs(use_seaborn=False):
+    if use_seaborn:
+        plt.style.use('seaborn-white')
+    rc('text', usetex=True)
+    rc('font', **{'family': 'serif', 'serif': ['Helvetica'], 'size': textsize})
 
     # rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica'], 'size': textsize})
     # rc('text.latex', preamble=r'\usepackage{cmbright}')
+
+    rc('axes', linewidth=0.5)
+    rc('lines', linewidth=1)
 
     plt.rcParams['font.size'] = textsize
     plt.rcParams['xtick.labelsize'] = textsize - 4
     plt.rcParams['ytick.labelsize'] = textsize - 4
     plt.grid(True)
-    # plt.gca().yaxis.grid(True, alpha=0.85)
+    plt.gca().yaxis.grid(True, alpha=0.85)
+    return
 
 
 def plot_cdf(outname):
@@ -62,7 +67,6 @@ def plot_cdf(outname):
 
     writeout("%s"%outname)
     # plt.show()
-
     plt.clf()
 
 
@@ -114,4 +118,36 @@ def plot_scatter(outname, workloads, latency_data, throughput_data, systems_comp
         writeout("%s"%(outname+"_w"+name))
         print "Done with Writing to file"
         plt.clf()
-    # plt.show()
+
+
+def plot_boxplot(data, outname, workloads, systems_compared, systems_labels):
+    fig, axes = plt.subplots(ncols=len(workloads), sharey=True)
+    fig.subplots_adjust(wspace=0)
+    # fig.text(0.5, 0.04, "YCSB Workloads", ha='center')
+    fig.text(0.04, 0.5, "Request latency [ms]", va='center', rotation='vertical')
+
+    for ax, name in zip(axes, workloads):
+        # whis from 5th to 99th precentile
+        ax.boxplot(x=[data[name][item] for item in systems_compared], whis=[5, 99], sym=" ")
+        xtickNames = ax.set(xticklabels=systems_labels)
+        plt.setp(xtickNames, rotation=90, fontsize=8)
+
+        workloadXtick = ax.set(xlabel='workload'+name)
+        plt.setp(workloadXtick, fontsize=10)
+        # # Add a horizontal grid to the plot, but make it very light in color
+        # # so we can use it for reading data values but not be distracting
+        ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey',
+               alpha=0.5)
+        # Hide these grid behind plot objects
+        ax.set_axisbelow(True)
+        ax.margins(0.05) # Optional
+    # plt.ylim((0,50))
+    # plt.xlim((-1,100))
+    # plt.legend(loc=4, frameon=True, handlelength=2.5, handletextpad=0.2)
+
+    # Global style configuration
+    set_rcs()
+    print "Done with plots"
+    writeout("%s"%outname)
+    print "Done with Writing to file"
+    plt.show()

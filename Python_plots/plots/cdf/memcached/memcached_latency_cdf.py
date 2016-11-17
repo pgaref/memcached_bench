@@ -30,6 +30,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from plots.utils import *
+from plots.qjump_utils import *
 
 logging.basicConfig(level=logging.INFO)
 

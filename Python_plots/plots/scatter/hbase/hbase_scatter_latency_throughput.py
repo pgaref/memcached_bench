@@ -153,7 +153,7 @@ if __name__ == '__main__':
     print "Sytem Path {}".format(os.environ['PATH'])
 
     if len(sys.argv) < 2:
-      print "Usage: boxplot_latency_percentiles.py <input PATH> <label 1> ... " \
+      print "Usage: hbase_boxplot_latency_percentiles.py <input PATH> <label 1> ... " \
           "<input PATH n> <label n> [output file]"
 
     if (len(sys.argv) - 1) % 2 != 0:
