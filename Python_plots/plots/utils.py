@@ -34,7 +34,7 @@ def prepare_legend(legend_loc=1, legend_ncol=1):
     return
 
 
-def set_rcs(use_seaborn=False):
+def set_rcs(use_seaborn=False, isboxPlot=False):
     if use_seaborn:
         plt.style.use('seaborn-white')
     rc('text', usetex=True)
@@ -46,9 +46,15 @@ def set_rcs(use_seaborn=False):
     rc('axes', linewidth=0.5)
     rc('lines', linewidth=1)
 
-    plt.rcParams['font.size'] = textsize
-    plt.rcParams['xtick.labelsize'] = textsize - 4
-    plt.rcParams['ytick.labelsize'] = textsize - 4
+    if not isboxPlot:
+        plt.rcParams['font.size'] = textsize
+        plt.rcParams['xtick.labelsize'] = textsize - 4
+        plt.rcParams['ytick.labelsize'] = textsize - 4
+    else:
+        plt.rcParams['font.size'] = textsize - 10
+        plt.rcParams['xtick.labelsize'] = textsize - 14
+        plt.rcParams['ytick.labelsize'] = textsize - 14
+
     plt.grid(True)
     plt.gca().yaxis.grid(True, alpha=0.85)
     return
@@ -105,7 +111,7 @@ def plot_scatter(outname, workloads, latency_data, throughput_data, systems_comp
         locs, labels = plt.yticks()
         tick_labels = []
         for tick in locs:
-            if (int(tick)/1000) > 0:
+            if (int(tick)/1000) > 0 or (float(tick)/1000) == 0:
                 tick_labels.append(str(int(tick)/1000)) # + "K")
             else:
                 tick_labels.append(str(float(tick) / 1000))  # + "K")
@@ -124,7 +130,7 @@ def plot_boxplot(data, outname, workloads, systems_compared, systems_labels):
     fig, axes = plt.subplots(ncols=len(workloads), sharey=True)
     fig.subplots_adjust(wspace=0)
     # fig.text(0.5, 0.04, "YCSB Workloads", ha='center')
-    fig.text(0.04, 0.5, "Request latency [ms]", va='center', rotation='vertical')
+    fig.text(0.04, 0.5, "Request latency [ms]", va='center', rotation='vertical', fontsize=matplotlib.rcParams['font.size']/2)
 
     for ax, name in zip(axes, workloads):
         # whis from 5th to 99th precentile
@@ -146,7 +152,7 @@ def plot_boxplot(data, outname, workloads, systems_compared, systems_labels):
     # plt.legend(loc=4, frameon=True, handlelength=2.5, handletextpad=0.2)
 
     # Global style configuration
-    set_rcs()
+    set_rcs(isboxPlot=True)
     print "Done with plots"
     writeout("%s"%outname)
     print "Done with Writing to file"

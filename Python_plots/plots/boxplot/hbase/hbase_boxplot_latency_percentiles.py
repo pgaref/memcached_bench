@@ -32,7 +32,7 @@ import plots.utils as utils
 
 
 # Global style configuration
-utils.set_rcs()
+utils.set_rcs(isboxPlot=True)
 
 
 # ALL DATA
