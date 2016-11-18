@@ -50,13 +50,13 @@ def set_rcs(use_seaborn=False, isboxPlot=False):
         plt.rcParams['font.size'] = textsize
         plt.rcParams['xtick.labelsize'] = textsize - 4
         plt.rcParams['ytick.labelsize'] = textsize - 4
+        plt.gca().yaxis.grid(True, alpha=0.85)
+        plt.grid(True)
     else:
         plt.rcParams['font.size'] = textsize - 10
         plt.rcParams['xtick.labelsize'] = textsize - 14
         plt.rcParams['ytick.labelsize'] = textsize - 14
 
-    plt.grid(True)
-    plt.gca().yaxis.grid(True, alpha=0.85)
     return
 
 
@@ -130,7 +130,8 @@ def plot_boxplot(data, outname, workloads, systems_compared, systems_labels):
     fig, axes = plt.subplots(ncols=len(workloads), sharey=True)
     fig.subplots_adjust(wspace=0)
     # fig.text(0.5, 0.04, "YCSB Workloads", ha='center')
-    fig.text(0.04, 0.5, "Request latency [ms]", va='center', rotation='vertical', fontsize=matplotlib.rcParams['font.size']/2)
+    fig.text(0.04, 0.5, "Request latency [ms]", va='center', rotation='vertical',
+             fontsize=matplotlib.rcParams['font.size']-4)
 
     for ax, name in zip(axes, workloads):
         # whis from 5th to 99th precentile
