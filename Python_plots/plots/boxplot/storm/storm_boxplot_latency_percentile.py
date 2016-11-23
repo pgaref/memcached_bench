@@ -23,70 +23,19 @@ __copyright__ = "Imperial College London"
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import seaborn as sns
 import numpy as np
-import datetime
-import random
 import sys
 import os
+import plots.utils as utils
 
-import matplotlib.pyplot as plt
-from matplotlib import rc
-
-plt.style.use('seaborn-white')
-rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica'],
-                  'serif': ['Helvetica'], 'size': 14})
-rc('text', usetex=True)
-rc('legend', fontsize=12)
-rc('axes', linewidth=1)
-rc('lines', linewidth=1)
-
-
-# paper_colors = ['#496ee2', '#8e053b', 'g', '#ef9708', '0', '#ff3399', '0.5', 'c', '0.7']
-colors = ['b', 'r', 'g', 'c', 'm']
+# Global style configuration
+utils.set_rcs(isboxPlot=True)
 
 
 # ALL DATA
 data = {}
-# data['workloadA'] = {}
-
-# ALL workloads
-# workloads = ["A", "B", "C", "D", "E", "F"]
 systems_compared = ['YARN', 'MEDEA (intra-only)', 'MEDEA']
 systems_labels = ['YARN', 'MEDEA \n (intra-only)', 'MEDEA']
-# workloads = ["A", "B"]
-
-
-def plot_boxes(outname):
-    fig, axes = plt.subplots(ncols=1, sharey=True)
-    fig.subplots_adjust(wspace=0)
-    # fig.text(0.5, 0.04, "YCSB Workloads", ha='center')
-    fig.text(0.04, 0.5, "Cache request latency [ms]", va='center', rotation='vertical')
-
-    # for ax, name in zip(axes, workloads):
-    # whis from 5th to 99th precentile
-    bt = axes.boxplot(x=[data[item] for item in systems_compared], whis=[5, 99], sym="+")
-    plt.setp(bt['fliers'], color='red', marker='+')
-    xtickNames = axes.set(xticklabels=systems_labels)
-    plt.setp(xtickNames, rotation=90, fontsize=12)
-
-    # workloadXtick = axes.set(xlabel='Placement Constraints')
-    # plt.setp(workloadXtick, fontsize=14)
-
-    # # Add a horizontal grid to the plot, but make it very light in color
-    # # so we can use it for reading data values but not be distracting
-    axes.yaxis.grid(True, linestyle='-', which='major', color='lightgrey',
-                    alpha=1)
-    # Hide these grid behind plot objects
-    axes.set_axisbelow(True)
-    axes.margins(0.05)  # Optional
-    # plt.ylim((0,50))
-    # plt.xlim((-1,100))
-    # plt.legend(loc=4, frameon=True, handlelength=2.5, handletextpad=0.2)
-    print "Done with plots"
-    plt.savefig("%s.pdf"%outname, format="pdf", bbox_inches="tight")
-    print "Done with Writing to file"
-    plt.show()
 
 
 def add_values(values, label):
@@ -167,7 +116,7 @@ if __name__ == '__main__':
     print "Sytem Path {}".format(os.environ['PATH'])
 
     if len(sys.argv) < 2:
-      print "Usage: stom_latency_boxplot.py <input PATH> <label 1> ... " \
+      print "Usage: storm_boxplot_latency_percentile.py <input PATH> <label 1> ... " \
           "<input PATH n> <label n> [output file]"
 
     if (len(sys.argv) - 1) % 2 != 0:
@@ -189,4 +138,4 @@ if __name__ == '__main__':
         fnames.append(path + "trendingHashTags.log")
     print "Processing.. "+ str(fnames)
     file_parser(fnames)
-    plot_boxes(outname)
+    utils.plot_boxplot(data, outname, systems_compared, systems_labels)

@@ -29,13 +29,13 @@ import os
 import plots.utils as utils
 
 
-colors = ['r', 'g', 'b', 'c', 'm']
+colors = ['r', 'g', 'b', 'm', 'c']
 markers = ['o', '^', 'v', 'h']
-linestyle_list = ['--', '-.', '-']
+linestyle_list = ['--', '-.', '-', ':']
 
 # ALL workloads
 workloads = ["A", "B", "C", "D", "E", "F"]
-systems_compared = ['YARN']
+systems_compared = ['YARN', 'YARN-Cgroups', 'MEDEA']
 
 # Global style configuration
 utils.set_rcs()
@@ -174,4 +174,4 @@ if __name__ == '__main__':
             fnames.append(path + "write-w"+workload+"-10R.dat")
         print "Processing.. "+ str(fnames)
         file_parser(fnames)
-        utils.plot_cdf(outname+"w"+workload)
+        utils.plot_cdf(outname+"w"+workload, ylabel="Request latency [ms]")

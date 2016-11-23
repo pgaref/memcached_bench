@@ -54,17 +54,26 @@ def set_rcs(use_seaborn=False, isboxPlot=False):
         plt.grid(True)
     else:
         plt.rcParams['font.size'] = textsize - 10
-        plt.rcParams['xtick.labelsize'] = textsize - 14
-        plt.rcParams['ytick.labelsize'] = textsize - 14
+        plt.rcParams['xtick.labelsize'] = textsize/2 -12
+        plt.rcParams['ytick.labelsize'] = textsize/2
+        plt.rc('axes',   labelsize=(textsize/2 -2))  # fontsize of the x any y labels
+
+        # plt.rc('font', size=SIZE)  # controls default text sizes
+        # plt.rc('axes', titlesize=SIZE)  # fontsize of the axes title
+        # plt.rc('axes', labelsize=SIZE)  # fontsize of the x any y labels
+        # plt.rc('xtick', labelsize=SIZE)  # fontsize of the tick labels
+        # plt.rc('ytick', labelsize=SIZE)  # fontsize of the tick labels
+        # plt.rc('legend', fontsize=SIZE)  # legend fontsize
+        # plt.rc('figure', titlesize=SIZE)  # # size of the figure title
 
     return
 
 
-def plot_cdf(outname):
+def plot_cdf(outname, ylabel):
     plt.ylim((0,1))
     plt.yticks(np.arange(0, 1.1, 0.1))
     plt.xlim((-1))
-    plt.xlabel("Request latency [ms]", fontsize=matplotlib.rcParams['font.size'])
+    plt.xlabel(ylabel, fontsize=matplotlib.rcParams['font.size'])
     plt.ylabel("CDF", fontsize=matplotlib.rcParams['font.size'])
 
     # Global style configuration
@@ -126,7 +135,7 @@ def plot_scatter(outname, workloads, latency_data, throughput_data, systems_comp
         plt.clf()
 
 
-def plot_boxplot(data, outname, workloads, systems_compared, systems_labels):
+def plot_multiboxplot(data, outname, workloads, systems_compared, systems_labels):
     fig, axes = plt.subplots(ncols=len(workloads), sharey=True)
     fig.subplots_adjust(wspace=0)
     # fig.text(0.5, 0.04, "YCSB Workloads", ha='center')
@@ -137,10 +146,10 @@ def plot_boxplot(data, outname, workloads, systems_compared, systems_labels):
         # whis from 5th to 99th precentile
         ax.boxplot(x=[data[name][item] for item in systems_compared], whis=[5, 99], sym=" ")
         xtickNames = ax.set(xticklabels=systems_labels)
-        plt.setp(xtickNames, rotation=90, fontsize=8)
+        plt.setp(xtickNames, rotation=90, fontsize=textsize/2)
 
         workloadXtick = ax.set(xlabel='workload'+name)
-        plt.setp(workloadXtick, fontsize=10)
+        plt.setp(workloadXtick)
         # # Add a horizontal grid to the plot, but make it very light in color
         # # so we can use it for reading data values but not be distracting
         ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey',
@@ -157,4 +166,27 @@ def plot_boxplot(data, outname, workloads, systems_compared, systems_labels):
     print "Done with plots"
     writeout("%s"%outname)
     print "Done with Writing to file"
-    plt.show()
+
+
+def plot_boxplot(data, outname, systems_compared, systems_labels):
+    fig, axes = plt.subplots(ncols=1, sharey=True)
+    fig.subplots_adjust(wspace=0)
+    fig.text(0.04, 0.5, "Cache request latency [ms]", va='center', rotation='vertical',
+             fontsize=matplotlib.rcParams['font.size']-4)
+    # for ax, name in zip(axes, workloads):
+    # whis from 5th to 99th precentile
+    bt = axes.boxplot(x=[data[item] for item in systems_compared], whis=[5, 99], sym="+")
+    plt.setp(bt['fliers'], color='red', marker='+')
+    xtickNames = axes.set(xticklabels=systems_labels)
+    plt.setp(xtickNames, rotation=90, fontsize=textsize/2)
+
+    # # Add a horizontal grid to the plot, but make it very light in color
+    # # so we can use it for reading data values but not be distracting
+    axes.yaxis.grid(True, linestyle='-', which='major', color='lightgrey',
+                    alpha=1)
+    # Hide these grid behind plot objects
+    axes.set_axisbelow(True)
+    axes.margins(0.05)  # Optional
+    print "Done with plots"
+    writeout("%s"%outname)
+    print "Done with Writing to file"

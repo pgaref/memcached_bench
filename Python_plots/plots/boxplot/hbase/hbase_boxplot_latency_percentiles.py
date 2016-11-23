@@ -159,4 +159,4 @@ if __name__ == '__main__':
         data[workload] = {}
         file_parser(fnames, workload)
 
-    utils.plot_boxplot(data, outname, workloads, systems_compared, systems_labels)
+    utils.plot_multiboxplot(data, outname, workloads, systems_compared, systems_labels)

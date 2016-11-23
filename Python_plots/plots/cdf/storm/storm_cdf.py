@@ -1,39 +1,17 @@
-import seaborn as sns
 import numpy as np
 import datetime
 import sys
 import os
+import plots.utils as utils
 
-import matplotlib.pyplot as plt
-from matplotlib import rc
+# Global style configuration
+utils.set_rcs()
 
-plt.style.use('seaborn-white')
-rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica'],
-                  'serif': ['Helvetica'], 'size': 14})
-rc('text', usetex=True)
-rc('legend', fontsize=12)
-rc('axes', linewidth=1)
-rc('lines', linewidth=1)
-
-# paper_colors = ['#496ee2', '#8e053b', 'g', '#ef9708', '0', '#ff3399', '0.5', 'c', '0.7']
-colors = ['b', 'r', 'g', 'c', 'm']
-markers = ['o', '^', 'v', 'h']
-linestyle_list = ['-', '--', '-.']
+colors = ['r', 'g', 'b', 'c', 'm']
 
 # workloads = ["A", "B", "C", "D", "E", "F"]
 systems_compared = ['YARN', 'MEDEA (intra-only)', 'MEDEA']
 systems_labels = ['YARN', 'MEDEA \n (intra-only)', 'MEDEA']
-
-
-def plot_cdf(outname):
-    plt.ylim((0,1))
-    plt.xlim((-1))
-    plt.xlabel("Cache request latency [ms]")
-    plt.ylabel("CDF")
-    plt.grid(True)
-    plt.legend(loc=4, frameon=True, handlelength=2.5, handletextpad=0.2)
-    plt.savefig("%s.pdf"%outname, format="pdf", bbox_inches="tight")
-    plt.show()
 
 
 def cdf(data, label_count, label):
@@ -53,7 +31,7 @@ def cdf(data, label_count, label):
     cdf = np.cumsum(counts)
 
     # Plot the cdf
-    plt.plot(bin_edges[0:-1], cdf,linestyle='--', marker="o", label=systems_labels[label_count], color=colors[label_count])
+    utils.plt.plot(bin_edges[0:-1], cdf,linestyle='--', marker="o", label=systems_labels[label_count], color=colors[label_count])
 
 
 
@@ -143,11 +121,11 @@ if __name__ == '__main__':
       labels.append(sys.argv[2 + i])
 
     print 'PATH given: {}'.format("".join(fname for fname in fpaths))
-    print 'Labels given: {}'.format("".join(label for label in labels))
+    print 'Labels given: {}'.format(" ".join(label for label in labels))
 
     fnames = []
     for path in fpaths:
         fnames.append(path + "trendingHashTags.log")
     print "Processing.. "+ str(fnames)
     file_parser(fnames)
-    plot_cdf(outname)
+    utils.plot_cdf(outname, ylabel="Cache request latency [ms]")
