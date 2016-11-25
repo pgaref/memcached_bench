@@ -35,7 +35,7 @@ linestyle_list = ['--', '-.', '-', ':']
 
 # ALL workloads
 workloads = ["A", "B", "C", "D", "E", "F"]
-systems_compared = ['YARN', 'YARN-Cgroups', 'MEDEA']
+systems_compared = ['YARN', 'YARN-Cgroups', 'MEDEA', 'MEDEA-Cgroups']
 
 # Global style configuration
 utils.set_rcs()
@@ -151,7 +151,7 @@ if __name__ == '__main__':
     print "Sytem Path {}".format(os.environ['PATH'])
 
     if len(sys.argv) < 2:
-      print "Usage: memcached_latency_cdf.py <input PATH 1> <label 1> ... " \
+      print "Usage: hbase_latency_cdf.py <input PATH 1> <label 1> ... " \
           "<input  PATH n> <label n> [output file]"
 
     if (len(sys.argv) - 1) % 2 != 0:

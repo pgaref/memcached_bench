@@ -36,7 +36,7 @@ throughput_data = {}
 
 # ALL workloads
 workloads = ["A", "B", "C", "D", "E", "F"]
-systems_compared = ['YARN', 'YARN-Cgroups', 'MEDEA']
+systems_compared = ['YARN', 'YARN-Cgroups', 'MEDEA', 'MEDEA-Cgroups']
 # workloads = ["A", "B"]
 
 

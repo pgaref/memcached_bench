@@ -21,38 +21,53 @@ __copyright__ = "Imperial College London"
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
+# SOFTWARE
 import numpy as np
 import datetime
-import random
 import sys
 import os
 import plots.utils as utils
 
 
-# Global style configuration
-utils.set_rcs(isboxPlot=True)
-
-
-# ALL DATA
-data = {}
+colors = ['r', 'g', 'b', 'm', 'c']
+markers = ['o', '^', 'v', 'h']
+linestyle_list = ['--', '-.', '-', ':']
 
 # ALL workloads
 workloads = ["A", "B", "C", "D", "E", "F"]
 systems_compared = ['YARN', 'YARN-Cgroups', 'MEDEA', 'MEDEA-Cgroups']
 
+# Global style configuration
+utils.set_rcs()
 
 
-def add_values(values, workload, label):
-    data[workload][label] = values
+def cdf(data, label, label_count):
+    data_size=len(data)
+    # Set bins edges
+    data_set=sorted(set(data))
+    bins=np.append(data_set, data_set[-1]+1)
+
+    # Use the histogram function to bin the data
+    counts, bin_edges = np.histogram(data, bins=bins, density=False)
+    counts=counts.astype(float)/data_size
+
+    # Find the cdf
+    cdf = np.cumsum(counts)
+
+    # Starting point (0,0)
+    bin_edges[0] = 0
+    cdf[0] = 0
+
+    # Plot the cdf
+    # plt.plot(bin_edges[0:-1], cdf, linestyle='--', marker='o', label=label, color=colors[label_count])
+    utils.plt.plot(bin_edges[0:-1], cdf, linestyle=linestyle_list[label_count], label=label, color=colors[label_count])
 
 
 #############################################
 # Message Format:
 # {READ | INSERT | TOTAL},TIMESTAMP,LATENCY (us)
 #############################################
-def file_parser(fnames, workload):
+def file_parser(fnames):
     i = 0
     for f in fnames:
         print "Analyzing %s:" % (f)
@@ -62,7 +77,13 @@ def file_parser(fnames, workload):
         minrto_outliers = 0
         start_ts = 0
         end_ts = 0
-        values = []
+
+        req_count = 0
+        current_ts = 0
+        all_values = []
+        latency_sum = []
+        latency_perc_values = []
+        throughput_values = []
         for line in open(f).readlines():
             fields = [x.strip() for x in line.split(",")]
             if fields[0] not in ["READ", "INSERT", "UPDATE", "SCAN", "READ-MODIFY-WRITE"]:
@@ -76,7 +97,24 @@ def file_parser(fnames, workload):
             if req_latency > 200:
                 minrto_outliers += 1
             else:
-                values.append(req_latency)
+                all_values.append(req_latency)
+                if current_ts == 0:
+                    current_ts = req_ts
+                    latency_sum.append(req_latency)
+                    req_count = 1
+                elif (req_ts - current_ts).total_seconds() >= 1:
+                    latency_perc_values.append(np.percentile(latency_sum, 99))
+                    throughput_values.append(req_count/1000)
+
+                    req_count = 1
+                    current_ts = req_ts
+                    latency_sum = []
+                    latency_sum.append(req_latency)
+                else:
+                    req_count += 1
+                    latency_sum.append(req_latency)
+
+
             #print "request: %s ts %s latency %d" % (req_type, str( req_ts), req_latency)
 
             # Start and End timestamps
@@ -94,35 +132,35 @@ def file_parser(fnames, workload):
         print "--------------------------------------"
 
         # for type in ['READ', 'INSERT']:
-        if len(values) == 0:
+        if len(all_values) == 0:
             continue
         # print "===== TYPE: %s ====="% (type)
         print "Throughput: %d req/sec" % (j / (end_ts - start_ts).total_seconds())
-        avg = np.mean(values)
+        avg = np.mean(all_values)
         print "AVG: %f" % (avg)
-        median = np.median(values)
+        median = np.median(all_values)
         print "MEDIAN: %f" % (median)
-        min_val = np.min(values)
+        min_val = np.min(all_values)
         print "MIN: %ld" % (min_val)
-        max_val = np.max(values)
+        max_val = np.max(all_values)
         print "MAX: %ld" % (max_val)
-        stddev = np.std(values)
+        stddev = np.std(all_values)
         print " STDEV: %f" % (stddev)
         print " PERCENTILES:"
-        perc10 = np.percentile(values, 10)
-        print " 10th: %f" % (np.percentile(values, 10))
-        perc25 = np.percentile(values, 25)
-        print " 25th: %f" % (np.percentile(values, 25))
-        perc50 = np.percentile(values, 50)
-        print " 50th: %f" % (np.percentile(values, 50))
-        perc75 = np.percentile(values, 75)
-        print " 75th: %f" % (np.percentile(values, 75))
-        perc90 = np.percentile(values, 90)
-        print " 90th: %f" % (np.percentile(values, 90))
-        perc99 = np.percentile(values, 99)
-        print " 99th: %f" % (np.percentile(values, 99))
+        perc10 = np.percentile(all_values, 10)
+        print " 10th: %f" % (np.percentile(all_values, 10))
+        perc25 = np.percentile(all_values, 25)
+        print " 25th: %f" % (np.percentile(all_values, 25))
+        perc50 = np.percentile(all_values, 50)
+        print " 50th: %f" % (np.percentile(all_values, 50))
+        perc75 = np.percentile(all_values, 75)
+        print " 75th: %f" % (np.percentile(all_values, 75))
+        perc90 = np.percentile(all_values, 90)
+        print " 90th: %f" % (np.percentile(all_values, 90))
+        perc99 = np.percentile(all_values, 99)
+        print " 99th: %f" % (np.percentile(all_values, 99))
 
-        add_values(values, workload, labels[i])
+        cdf(throughput_values, labels[i], i)
 
         i += 1
 
@@ -132,13 +170,13 @@ if __name__ == '__main__':
     print "Sytem Path {}".format(os.environ['PATH'])
 
     if len(sys.argv) < 2:
-      print "Usage: hbase_boxplot_latency_percentiles.py <input PATH> <label 1> ... " \
-          "<input PATH n> <label n> [output file]"
+      print "Usage: hbase_throughput_cdf.py <input PATH 1> <label 1> ... " \
+          "<input  PATH n> <label n> [output file]"
 
     if (len(sys.argv) - 1) % 2 != 0:
       outname = sys.argv[-1]
     else:
-      outname = "hbase_latency_boxes"
+      outname = "hbase_throughput_cdf_"
 
     fpaths = []
     labels = []
@@ -146,7 +184,7 @@ if __name__ == '__main__':
       fpaths.append(sys.argv[1 + i])
       labels.append(sys.argv[2 + i])
 
-    print 'Paths given: {}'.format("".join(fname for fname in fpaths))
+    print 'PATH given: {}'.format("".join(fname for fname in fpaths))
     print 'Labels given: {}'.format("".join(label for label in labels))
 
     for workload in workloads:
@@ -154,7 +192,5 @@ if __name__ == '__main__':
         for path in  fpaths:
             fnames.append(path + "write-w"+workload+"-10R.dat")
         print "Processing.. "+ str(fnames)
-        data[workload] = {}
-        file_parser(fnames, workload)
-
-    utils.plot_multiboxplot(data, outname, workloads, systems_compared, labels)
+        file_parser(fnames)
+        utils.plot_cdf(outname+"w"+workload, ylabel="Throughput [Kops/s]")
