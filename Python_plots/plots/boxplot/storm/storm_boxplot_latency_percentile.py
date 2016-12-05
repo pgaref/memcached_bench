@@ -106,6 +106,7 @@ def file_parser(fnames):
         perc99 = np.percentile(values, 99)
         print " 99th: %f" % (np.percentile(values, 99))
 
+        values = utils.reject_outliers(np.array(values))
         add_values(values, labels[i])
 
         i += 1
@@ -130,8 +131,8 @@ if __name__ == '__main__':
       fpaths.append(sys.argv[1 + i])
       labels.append(sys.argv[2 + i])
 
-    print 'Paths given: {}'.format("".join(fname for fname in fpaths))
-    print 'Labels given: {}'.format("".join(label for label in labels))
+    print 'Paths given: {}'.format(" | ".join(fname for fname in fpaths))
+    print 'Labels given: {}'.format(" | ".join(label for label in labels))
 
     fnames = []
     for path in  fpaths:

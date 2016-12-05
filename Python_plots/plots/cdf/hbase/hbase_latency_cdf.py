@@ -40,17 +40,16 @@ systems_compared = ['YARN', 'YARN-Cgroups', 'MEDEA', 'MEDEA-Cgroups']
 # Global style configuration
 utils.set_rcs()
 
-def cdf(data, min_val, max_val, label, label_count):
+
+def cdf(data, label, label_count):
 
     data_size=len(data)
-
     # Set bins edges
     data_set=sorted(set(data))
     bins=np.append(data_set, data_set[-1]+1)
 
     # Use the histogram function to bin the data
     counts, bin_edges = np.histogram(data, bins=bins, density=False)
-
     counts=counts.astype(float)/data_size
 
     # Find the cdf
@@ -90,10 +89,11 @@ def file_parser(fnames):
             req_ts = datetime.datetime.fromtimestamp( float(fields[1]) / 1000.0)
             req_latency = int(fields[2]) # Latency in micros
             req_latency = int(req_latency/1000) # Convert to millis
-            if req_latency > 200:
-                minrto_outliers += 1
-            else:
-                values.append(req_latency)
+            values.append(req_latency)
+            # if (req_latency > 200) or (req_latency <=0.0):
+            #     minrto_outliers += 1
+            # else:
+            #     values.append(req_latency)
             #print "request: %s ts %s latency %d" % (req_type, str( req_ts), req_latency)
 
             # Start and End timestamps
@@ -102,16 +102,18 @@ def file_parser(fnames):
             elif j != 0:
                 end_ts = req_ts
             j += 1
+
+        values = utils.reject_outliers(np.array(values))
         print "--------------------------------------"
         print "%s (%s)" % (labels[i], f)
         print "--------------------------------------"
-        print "%d total samples" % (j)
+        print "%d total samples - %d after filtering " % (j, values.size)
         print "Runtime: %d seconds"% (end_ts-start_ts).total_seconds()
         print "%d outliers due to MinRTO" % (minrto_outliers)
         print "--------------------------------------"
 
         # for type in ['READ', 'INSERT']:
-        if len(values) == 0:
+        if values.size == 0:
             continue
         # print "===== TYPE: %s ====="% (type)
         print "Throughput: %d req/sec" % (j / (end_ts - start_ts).total_seconds())
@@ -141,7 +143,7 @@ def file_parser(fnames):
         perc99 = np.percentile(values, 99)
         print " 99th: %f" % (np.percentile(values, 99))
 
-        cdf(values, min_val, max_val, labels[i], i)
+        cdf(values, labels[i], i)
 
         i += 1
 

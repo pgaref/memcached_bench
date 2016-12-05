@@ -25,7 +25,6 @@ __copyright__ = "Imperial College London"
 
 import numpy as np
 import datetime
-import random
 import sys
 import os
 import plots.utils as utils
@@ -39,7 +38,8 @@ utils.set_rcs(isboxPlot=True)
 data = {}
 
 # ALL workloads
-workloads = ["A", "B", "C", "D", "E", "F"]
+workloads = ["A", "B", "C", "D", "F"]
+# workloads = ["A", "B", "C", "D", "E", "F"]
 systems_compared = ['YARN', 'YARN-Cgroups', 'MEDEA', 'MEDEA-Cgroups']
 
 
@@ -73,10 +73,7 @@ def file_parser(fnames, workload):
             req_ts = datetime.datetime.fromtimestamp( float(fields[1]) / 1000.0)
             req_latency = int(fields[2]) # Latency in micros
             req_latency = int(req_latency/1000) # Convert to millis
-            if req_latency > 200:
-                minrto_outliers += 1
-            else:
-                values.append(req_latency)
+            values.append(req_latency)
             #print "request: %s ts %s latency %d" % (req_type, str( req_ts), req_latency)
 
             # Start and End timestamps
@@ -122,6 +119,7 @@ def file_parser(fnames, workload):
         perc99 = np.percentile(values, 99)
         print " 99th: %f" % (np.percentile(values, 99))
 
+        values = utils.reject_outliers(np.array(values))
         add_values(values, workload, labels[i])
 
         i += 1
@@ -146,8 +144,8 @@ if __name__ == '__main__':
       fpaths.append(sys.argv[1 + i])
       labels.append(sys.argv[2 + i])
 
-    print 'Paths given: {}'.format("".join(fname for fname in fpaths))
-    print 'Labels given: {}'.format("".join(label for label in labels))
+    print 'Paths given: {}'.format(" | ".join(fname for fname in fpaths))
+    print 'Labels given: {}'.format(" | ".join(label for label in labels))
 
     for workload in workloads:
         fnames = []

@@ -1,5 +1,29 @@
+__author__ = "Panagiotis Garefalakis"
+__copyright__ = "Imperial College London"
+
+# The MIT License (MIT)
+#
+# Copyright (c) 2016 Panagiotis Garefalakis
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import numpy as np
-import datetime
 import sys
 import os
 import plots.utils as utils
@@ -8,6 +32,8 @@ import plots.utils as utils
 utils.set_rcs()
 
 colors = ['r', 'g', 'b', 'c', 'm']
+markers = ['o', '^', 'v', 'h']
+linestyle_list = ['--', '-.', '-', ':']
 
 # workloads = ["A", "B", "C", "D", "E", "F"]
 systems_compared = ['YARN', 'MEDEA (intra-only)', 'MEDEA']
@@ -31,7 +57,7 @@ def cdf(data, label_count, label):
     cdf = np.cumsum(counts)
 
     # Plot the cdf
-    utils.plt.plot(bin_edges[0:-1], cdf,linestyle='--', marker="o", label=systems_labels[label_count], color=colors[label_count])
+    utils.plt.plot(bin_edges[0:-1], cdf,linestyle=linestyle_list[label_count], label=systems_labels[label_count], color=colors[label_count])
 
 
 
@@ -96,6 +122,7 @@ def file_parser(fnames):
         perc99 = np.percentile(values, 99)
         print " 99th: %f" % (np.percentile(values, 99))
 
+        values = utils.reject_outliers(np.array(values))
         cdf(values, i, labels[i])
 
         i += 1
@@ -106,7 +133,7 @@ if __name__ == '__main__':
     print "Sytem Path {}".format(os.environ['PATH'])
 
     if len(sys.argv) < 2:
-      print "Usage: memcached_latency_cdf.py <input PATH 1> <label 1> ... " \
+      print "Usage: storm_cdf.py <input PATH 1> <label 1> ... " \
           "<input  PATH n> <label n> [output file]"
 
     if (len(sys.argv) - 1) % 2 != 0:
@@ -120,8 +147,8 @@ if __name__ == '__main__':
       fpaths.append(sys.argv[1 + i])
       labels.append(sys.argv[2 + i])
 
-    print 'PATH given: {}'.format("".join(fname for fname in fpaths))
-    print 'Labels given: {}'.format(" ".join(label for label in labels))
+    print 'Paths given: {}'.format(" | ".join(fname for fname in fpaths))
+    print 'Labels given: {}'.format(" | ".join(label for label in labels))
 
     fnames = []
     for path in fpaths:

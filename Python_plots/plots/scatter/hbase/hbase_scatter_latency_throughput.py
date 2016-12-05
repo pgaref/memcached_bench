@@ -77,28 +77,25 @@ def file_parser(fnames, workload):
             req_ts = datetime.datetime.fromtimestamp( float(fields[1]) / 1000.0)
             req_latency = int(fields[2]) # Latency in micros
             req_latency = int(req_latency/1000) # Convert to millis
-            if req_latency > 200:
-                minrto_outliers += 1
+            # if req_latency > 200 or req_latency <= 0.0:
+            #     minrto_outliers += 1
+            # else:
+            all_values.append(req_latency)
+            if current_ts == 0:
+                current_ts = req_ts
+                latency_sum.append(req_latency)
+                req_count = 1
+            elif (req_ts - current_ts).total_seconds() >= 1:
+                latency_perc_values.append(np.percentile(latency_sum, 99))
+                throughput_values.append(req_count)
+
+                req_count = 1
+                current_ts = req_ts
+                latency_sum = []
+                latency_sum.append(req_latency)
             else:
-                all_values.append(req_latency)
-                if current_ts == 0:
-                    current_ts = req_ts
-                    latency_sum.append(req_latency)
-                    req_count = 1
-                elif (req_ts - current_ts).total_seconds() >= 1:
-                    latency_perc_values.append(np.percentile(latency_sum, 99))
-                    throughput_values.append(req_count)
-
-                    req_count = 1
-                    current_ts = req_ts
-                    latency_sum = []
-                    latency_sum.append(req_latency)
-                else:
-                    req_count += 1
-                    latency_sum.append(req_latency)
-
-
-            #print "request: %s ts %s latency %d" % (req_type, str( req_ts), req_latency)
+                req_count += 1
+                latency_sum.append(req_latency)
 
             # Start and End timestamps
             if j == 0:
@@ -143,6 +140,8 @@ def file_parser(fnames, workload):
         perc99 = np.percentile(all_values, 99)
         print " 99th: %f" % (np.percentile(all_values, 99))
 
+        latency_perc_values, throughput_values = utils.reject_double_outliers(
+            np.array(latency_perc_values), np.array(throughput_values))
         add_values(latency_perc_values, throughput_values, workload, labels[i])
 
         i += 1
@@ -153,7 +152,7 @@ if __name__ == '__main__':
     print "Sytem Path {}".format(os.environ['PATH'])
 
     if len(sys.argv) < 2:
-      print "Usage: hbase_boxplot_latency_percentiles.py <input PATH> <label 1> ... " \
+      print "Usage: hbase_scatter_latency_throughput.py <input PATH> <label 1> ... " \
           "<input PATH n> <label n> [output file]"
 
     if (len(sys.argv) - 1) % 2 != 0:
@@ -167,8 +166,8 @@ if __name__ == '__main__':
       fpaths.append(sys.argv[1 + i])
       labels.append(sys.argv[2 + i])
 
-    print 'Paths given: {}'.format("".join(fname for fname in fpaths))
-    print 'Labels given: {}'.format("".join(label for label in labels))
+    print 'Paths given: {}'.format(" | ".join(fname for fname in fpaths))
+    print 'Labels given: {}'.format(" | ".join(label for label in labels))
 
     for workload in workloads:
         fnames = []

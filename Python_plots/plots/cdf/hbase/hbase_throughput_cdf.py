@@ -94,25 +94,29 @@ def file_parser(fnames):
             req_ts = datetime.datetime.fromtimestamp( float(fields[1]) / 1000.0)
             req_latency = int(fields[2]) # Latency in micros
             req_latency = int(req_latency/1000) # Convert to millis
-            if req_latency > 200:
-                minrto_outliers += 1
-            else:
-                all_values.append(req_latency)
-                if current_ts == 0:
-                    current_ts = req_ts
-                    latency_sum.append(req_latency)
+            all_values.append(req_latency)
+            if current_ts == 0:
+                current_ts = req_ts
+                latency_sum.append(req_latency)
+                req_count = 1
+            elif (req_ts - current_ts).total_seconds() >= 1:
+                if "wE" in f and (req_count / 1000 > 5000) or (req_count / 1000 > 4000):
                     req_count = 1
-                elif (req_ts - current_ts).total_seconds() >= 1:
+                    current_ts = req_ts
+                    latency_sum = []
+                else:
                     latency_perc_values.append(np.percentile(latency_sum, 99))
-                    throughput_values.append(req_count/1000)
-
+                    if "wE" in f:
+                        throughput_values.append(req_count)
+                    else:
+                        throughput_values.append(req_count / 1000)
                     req_count = 1
                     current_ts = req_ts
                     latency_sum = []
                     latency_sum.append(req_latency)
-                else:
-                    req_count += 1
-                    latency_sum.append(req_latency)
+            else:
+                req_count += 1
+                latency_sum.append(req_latency)
 
 
             #print "request: %s ts %s latency %d" % (req_type, str( req_ts), req_latency)
@@ -160,6 +164,7 @@ def file_parser(fnames):
         perc99 = np.percentile(all_values, 99)
         print " 99th: %f" % (np.percentile(all_values, 99))
 
+        throughput_values = utils.reject_outliers(np.array(throughput_values))
         cdf(throughput_values, labels[i], i)
 
         i += 1
@@ -184,8 +189,8 @@ if __name__ == '__main__':
       fpaths.append(sys.argv[1 + i])
       labels.append(sys.argv[2 + i])
 
-    print 'PATH given: {}'.format("".join(fname for fname in fpaths))
-    print 'Labels given: {}'.format("".join(label for label in labels))
+    print 'Paths given: {}'.format(" | ".join(fname for fname in fpaths))
+    print 'Labels given: {}'.format(" | ".join(label for label in labels))
 
     for workload in workloads:
         fnames = []
@@ -193,4 +198,7 @@ if __name__ == '__main__':
             fnames.append(path + "write-w"+workload+"-10R.dat")
         print "Processing.. "+ str(fnames)
         file_parser(fnames)
-        utils.plot_cdf(outname+"w"+workload, ylabel="Throughput [Kops/s]")
+        if "E" in workload:
+            utils.plot_cdf(outname+"w"+workload, ylabel="Throughput [ops/s]")
+        else:
+            utils.plot_cdf(outname + "w" + workload, ylabel="Throughput [Kops/s]")

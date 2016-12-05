@@ -1,4 +1,27 @@
-__author__ = 'pg1712'
+__author__ = "Panagiotis Garefalakis"
+__copyright__ = "Imperial College London"
+
+# The MIT License (MIT)
+#
+# Copyright (c) 2016 Panagiotis Garefalakis
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 from matplotlib import use, rc
 use('Agg')
@@ -11,6 +34,16 @@ import numpy as np
 
 textsize = 34
 
+
+# Reject values based on the variance of the mean
+def reject_double_outliers(latency_data, throughput_data, m=3):
+    throughput_data = throughput_data[abs(latency_data - np.mean(latency_data)) < m * np.std(latency_data)]
+    latency_data  = latency_data[abs(latency_data - np.mean(latency_data)) < m * np.std(latency_data)]
+    return latency_data, throughput_data
+
+# Reject values based on the variance of the mean
+def reject_outliers(data, m=3):
+    return data[abs(data - np.mean(data)) < m * np.std(data)]
 
 # plot saving utility function
 def writeout(filename_base, tight=True):
@@ -113,9 +146,9 @@ def plot_scatter(outname, workloads, latency_data, throughput_data, systems_comp
         # axes
         axes = plt.gca()
         ymin, ymax = axes.get_ylim()
+        xmin, xman = axes.get_xlim()
         plt.ylim(0,ymax)
-        plt.xlim(0,250)
-
+        plt.xlim(0,xman)
         #Convert y Values using K instead
         locs, labels = plt.yticks()
         tick_labels = []
@@ -160,7 +193,10 @@ def plot_multiboxplot(data, outname, workloads, systems_compared, systems_labels
     # plt.ylim((0,50))
     # plt.xlim((-1,100))
     # plt.legend(loc=4, frameon=True, handlelength=2.5, handletextpad=0.2)
-
+    # axes
+    axes = plt.gca()
+    ymin, ymax = axes.get_ylim()
+    plt.ylim(0, ymax-100)
     # Global style configuration
     set_rcs(isboxPlot=True)
     print "Done with plots"
@@ -176,7 +212,7 @@ def plot_boxplot(data, outname, systems_compared, systems_labels):
     # for ax, name in zip(axes, workloads):
     # whis from 5th to 99th precentile
     bt = axes.boxplot(x=[data[item] for item in systems_compared], whis=[5, 99], sym="+")
-    plt.setp(bt['fliers'], color='red', marker='+')
+    # plt.setp(bt['fliers'], color='red', marker='+')
     xtickNames = axes.set(xticklabels=systems_labels)
     plt.setp(xtickNames, rotation=90, fontsize=textsize/2)
 
