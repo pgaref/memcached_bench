@@ -58,10 +58,10 @@ def set_leg_fontsize(size):
     rc('legend', fontsize=size)
 
 
-def prepare_legend(legend_loc=1, legend_ncol=1):
+def prepare_legend(legend_loc=1, legend_ncol=1, legend_font='small'):
     rc('legend', frameon=True)
     legfont = fnt.FontProperties()
-    legfont.set_size('small')
+    legfont.set_size(legend_font)
     leg = plt.legend(loc=legend_loc, ncol=legend_ncol, fancybox=True, prop=legfont)
     leg.get_frame().set_alpha(0.7)
     return
