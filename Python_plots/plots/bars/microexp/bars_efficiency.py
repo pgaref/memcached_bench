@@ -1,8 +1,3 @@
-from matplotlib import use, rc
-use('Agg')
-import matplotlib
-#matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import sys
 import os
 import numpy as np
@@ -54,8 +49,8 @@ def color_bars(axes, colors):
 def optimal_line_graph(formula, x_range):
     x = np.array(x_range)
     y = eval(formula)
-    plt.plot(x, y, linestyle='--', linewidth=1.5, color='red')
-    plt.show()
+    utils.plt.plot(x, y, linestyle='--', linewidth=1.5, color='red')
+    utils.plt.show()
 
 
 def grouped_bar(data):
@@ -64,7 +59,7 @@ def grouped_bar(data):
     #     #order=["fixed", "reactive", "predictive"],
     #     # hue_order=["oracle", "bayesian"],
     #     data=data)
-    fig = plt.figure()
+    fig = utils.plt.figure()
     ax = fig.add_subplot(111)
 
     space = 0.25
@@ -92,7 +87,7 @@ def grouped_bar(data):
     print "Categories: ", categories
     ax.set_xticks(indexes)
     ax.set_xticklabels(["10\%", "20\%", "30\%", "40\%", "50\%", "60\%", "70\%", "80\%", "90\%", "100\%"])
-    plt.setp(plt.xticks()[1], rotation=90)
+    utils.plt.setp(utils.plt.xticks()[1], rotation=90)
 
     # Add the axis labels
     ax.set_ylabel("Placement Efficiency")
@@ -105,7 +100,7 @@ def grouped_bar(data):
     # Add a legend
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles[::-1], labels[::-1])
-    plt.tight_layout()
+    utils.plt.tight_layout()
 
     return fig, ax
 
