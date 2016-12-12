@@ -111,12 +111,12 @@ def grouped_bar(data):
     print "Indexes: ", indexes
     print "Categories: ", categories
     ax.set_xticks(indexes)
-    ax.set_xticklabels(["10\%", "20\%", "30\%", "40\%", "50\%", "60\%", "70\%", "80\%", "90\%", "100\%"])
-    utils.plt.setp(utils.plt.xticks()[1], rotation=90)
+    ax.set_xticklabels(["10", "20", "30", "40", "50", "60", "70", "80", "90", "100"])
+    utils.plt.setp(utils.plt.xticks()[1], rotation=0)
 
     # Add the axis labels
     ax.set_ylabel("Placement Efficiency")
-    ax.set_xlabel("Services Percentage")
+    ax.set_xlabel("Services Running [\% of Cluster]")
 
     # Show the 50% mark, which would indicate an equal
     # ax.hlines(19.5, -0.5, 5.5, linestyle='--', linewidth=1)
