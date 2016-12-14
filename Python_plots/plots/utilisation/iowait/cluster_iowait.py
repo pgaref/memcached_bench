@@ -29,7 +29,6 @@ import pandas as pd
 import datetime
 import plots.utils as utils
 from matplotlib import dates
-from matplotlib.pyplot import cm
 
 linestyle_list = ['--', '-.', ':', '-']
 markers = ['o', '^', 'v', 'h', 'x']

@@ -29,7 +29,6 @@ import pandas as pd
 import datetime
 import plots.utils as utils
 from matplotlib import dates
-from matplotlib.pyplot import cm
 
 linestyle_list = ['--', '-.', ':', '-']
 markers = ['o', '^', 'v', 'h', 'x']
@@ -39,7 +38,9 @@ markers = ['o', '^', 'v', 'h', 'x']
 fig = utils.plt.figure()
 ax1 = fig.add_subplot(111)
 ax1.set_xlabel("Time")
-ax1.set_ylabel("Memory Util \%")
+ax1.set_ylabel("Network Utilization in Mbps")
+ax1.set_ylim(0, 1000)
+
 nodeIndex=0
 
 
@@ -91,9 +92,6 @@ def file_parser(fnames, nodes):
         netOutTotal = running_mean(netOutTotal, len(netOutTotal))
         plot_timeseries(netOutTotal, nodes[i])
         i += 1
-    ax1.set_ylabel("Network Utilization in Mbps")
-    ax1.set_ylim(0, 1000)
-
 
 if __name__ == '__main__':
 
