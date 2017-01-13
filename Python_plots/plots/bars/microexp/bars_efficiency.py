@@ -31,7 +31,7 @@ import plots.utils as utils
 files = ["CPLEX-off_stats.csv", "CPLEX-on_stats.csv", "GR-NODE_CAND_stats.csv", "GR-SERIAL_stats.csv", "GR-RANDOM_stats.csv"]
 labels = ["ILP-offline", "ILP-online", "Node Candidates", "Random"]
 labels_map={"CPLEX-on": "ILP-online", "CPLEX-off": "ILP-offline",
-            "GR-NODE_CAND": "Node Candidates", "GR-RANDOM": "Greedy"}
+            "GR-NODE_CAND": "Node Candidates", "GR-RANDOM": "Greedy", "GR-SERIAL": "Aurora-TODO"}
 
 hatch_patterns = ["", "/", "\\", "x", ".", "o", "O"]
 cluster_size = 100
@@ -71,6 +71,15 @@ def color_bars(axes, colors):
         i += 1
 
 
+def calc_max_value(service_tasks):
+    node_memory = 4
+    return 100*(service_tasks/5) + node_memory + cluster_size
+
+
+def percentage(part, whole):
+  return 100 * float(part)/float(whole)
+
+
 def optimal_line_graph(formula, x_range):
     x = np.array(x_range)
     y = eval(formula)
@@ -99,28 +108,34 @@ def grouped_bar(data):
 
     i = 0
     for cond in conditions:
-        print "cond:", cond
-        y_vals = data[data[:, 0] == cond][:, 2].astype(np.float)
+        objective_vals = data[data[:, 0] == cond][:, 2].astype(np.float)
+        y_vals = []
+        index = 0
+        for value in objective_vals:
+            # calculate percentage
+            # print 'Current Value:', value, ' - Optimistic Value: ', calc_max_value(categories[index])
+            y_vals.append(percentage(value, calc_max_value(categories[index])))
+            index += 1
+
         pos = [j - (1 - space) / 2. + i * width for j in range(1, len(categories) + 1)]
         if labels_map.has_key(str(cond).strip()):
             ax.bar(pos, y_vals, width=width, label=labels_map[str(cond).strip()], color=get_colors()[i],
                    edgecolor=get_colors()[i+1],hatch=hatch_patterns[i])
             i +=1
 
-    indexes = range(1, len(categories) + 1)
+    indexes = np.arange(1, len(categories)+1, 1)
     print "Indexes: ", indexes
     print "Categories: ", categories
     ax.set_xticks(indexes)
     ax.set_xticklabels(["10", "20", "30", "40", "50", "60", "70", "80", "90", "100"])
-    utils.plt.setp(utils.plt.xticks()[1], rotation=0)
+    utils.plt.setp(utils.plt.xticks()[1], rotation=00)
+    ax.set_xlim(0,11)
 
     # Add the axis labels
-    ax.set_ylabel("Placement Efficiency")
-    ax.set_xlabel("Services Running [\% of Cluster]")
+    ax.set_ylabel("Placement Efficiency \%")
+    ax.set_xlabel("Services Running [Cluster \%]")
 
-    # Show the 50% mark, which would indicate an equal
-    # ax.hlines(19.5, -0.5, 5.5, linestyle='--', linewidth=1)
-    optimal_line_graph('100*( x*8 ) + '+str(cluster_size) + '+ 100', range(0, len(categories) + 1))
+    # optimal_line_graph('100*( x*8 ) + '+str(cluster_size) + '+ 100', range(0, len(categories) + 1))
 
     # Add a legend
     handles, labels = ax.get_legend_handles_labels()
@@ -162,5 +177,5 @@ if __name__ == '__main__':
     data = file_parser(fpaths)
     fig, axes = grouped_bar(data)
     utils.set_rcs()
-    utils.prepare_legend(legend_loc="upper left", legend_font=16)
+    utils.prepare_legend(legend_loc="lower left", legend_font=16)
     utils.writeout("%s"%outname)
