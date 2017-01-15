@@ -76,7 +76,7 @@ def file_parser(fnames, workload):
             req_type = fields[0]
             req_ts = datetime.datetime.fromtimestamp( float(fields[1]) / 1000.0)
             req_latency = int(fields[2]) # Latency in micros
-            req_latency = int(req_latency/1000) # Convert to millis
+            req_latency = int(req_latency/1000.0) # Convert to millis
             # if req_latency > 200 or req_latency <= 0.0:
             #     minrto_outliers += 1
             # else:
@@ -117,28 +117,28 @@ def file_parser(fnames, workload):
         # print "===== TYPE: %s ====="% (type)
         print "Throughput: %d req/sec" % (j / (end_ts - start_ts).total_seconds())
         avg = np.mean(all_values)
-        print "AVG: %f" % (avg)
+        print "AVG: %f" % avg
         median = np.median(all_values)
-        print "MEDIAN: %f" % (median)
+        print "MEDIAN: %f" % median
         min_val = np.min(all_values)
-        print "MIN: %ld" % (min_val)
+        print "MIN: %ld" % min_val
         max_val = np.max(all_values)
-        print "MAX: %ld" % (max_val)
+        print "MAX: %ld" % max_val
         stddev = np.std(all_values)
-        print " STDEV: %f" % (stddev)
+        print " STDEV: %f" % stddev
         print " PERCENTILES:"
         perc10 = np.percentile(all_values, 10)
-        print " 10th: %f" % (np.percentile(all_values, 10))
+        print " 10th: %f" % perc10
         perc25 = np.percentile(all_values, 25)
-        print " 25th: %f" % (np.percentile(all_values, 25))
+        print " 25th: %f" % perc25
         perc50 = np.percentile(all_values, 50)
-        print " 50th: %f" % (np.percentile(all_values, 50))
+        print " 50th: %f" % perc50
         perc75 = np.percentile(all_values, 75)
-        print " 75th: %f" % (np.percentile(all_values, 75))
+        print " 75th: %f" % perc75
         perc90 = np.percentile(all_values, 90)
-        print " 90th: %f" % (np.percentile(all_values, 90))
+        print " 90th: %f" % perc90
         perc99 = np.percentile(all_values, 99)
-        print " 99th: %f" % (np.percentile(all_values, 99))
+        print " 99th: %f" % perc99
 
         latency_perc_values, throughput_values = utils.reject_double_outliers(
             np.array(latency_perc_values), np.array(throughput_values))

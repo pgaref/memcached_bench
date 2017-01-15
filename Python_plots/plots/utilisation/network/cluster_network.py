@@ -110,6 +110,8 @@ if __name__ == '__main__':
         nodes.append('wombat'+str(i))
         fpaths.append(sys.argv[1]+"/"+file)
         # labels.append(sys.argv[2 + i])
+    nodes.append("koala12")
+    fpaths.append(sys.argv[1]+"/koala12_stats.csv")
 
     print 'Files given: {}'.format(" | ".join(fname for fname in fpaths))
     # print 'Labels given: {}'.format(" | ".join(label for label in labels))

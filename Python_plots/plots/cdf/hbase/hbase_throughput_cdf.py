@@ -42,14 +42,14 @@ utils.set_rcs()
 
 
 def cdf(data, label, label_count):
-    data_size=len(data)
+    data_size = len(data)
     # Set bins edges
-    data_set=sorted(set(data))
-    bins=np.append(data_set, data_set[-1]+1)
+    data_set = sorted(set(data))
+    bins = np.append(data_set, data_set[-1]+1)
 
     # Use the histogram function to bin the data
     counts, bin_edges = np.histogram(data, bins=bins, density=False)
-    counts=counts.astype(float)/data_size
+    counts = counts.astype(float)/data_size
 
     # Find the cdf
     cdf = np.cumsum(counts)
@@ -93,8 +93,7 @@ def file_parser(fnames):
             req_type = fields[0]
             req_ts = datetime.datetime.fromtimestamp( float(fields[1]) / 1000.0)
             req_latency = int(fields[2]) # Latency in micros
-            req_latency = int(req_latency/1000) # Convert to millis
-            all_values.append(req_latency)
+            all_values.append(req_latency/1000.0)
             if current_ts == 0:
                 current_ts = req_ts
                 latency_sum.append(req_latency)
@@ -145,24 +144,26 @@ def file_parser(fnames):
         median = np.median(all_values)
         print "MEDIAN: %f" % (median)
         min_val = np.min(all_values)
-        print "MIN: %ld" % (min_val)
+        print "MIN: %f" % (min_val)
         max_val = np.max(all_values)
         print "MAX: %ld" % (max_val)
         stddev = np.std(all_values)
         print " STDEV: %f" % (stddev)
         print " PERCENTILES:"
+        perc1 = np.percentile(all_values, 1)
+        print " 1th: %f" % perc1
         perc10 = np.percentile(all_values, 10)
-        print " 10th: %f" % (np.percentile(all_values, 10))
+        print " 10th: %f" % perc10
         perc25 = np.percentile(all_values, 25)
-        print " 25th: %f" % (np.percentile(all_values, 25))
+        print " 25th: %f" % perc25
         perc50 = np.percentile(all_values, 50)
-        print " 50th: %f" % (np.percentile(all_values, 50))
+        print " 50th: %f" % perc50
         perc75 = np.percentile(all_values, 75)
-        print " 75th: %f" % (np.percentile(all_values, 75))
+        print " 75th: %f" % perc75
         perc90 = np.percentile(all_values, 90)
-        print " 90th: %f" % (np.percentile(all_values, 90))
+        print " 90th: %f" % perc90
         perc99 = np.percentile(all_values, 99)
-        print " 99th: %f" % (np.percentile(all_values, 99))
+        print " 99th: %f" % perc99
 
         throughput_values = utils.reject_outliers(np.array(throughput_values))
         cdf(throughput_values, labels[i], i)
@@ -172,7 +173,7 @@ def file_parser(fnames):
 
 if __name__ == '__main__':
 
-    print "Sytem Path {}".format(os.environ['PATH'])
+    print "System Path {}".format(os.environ['PATH'])
 
     if len(sys.argv) < 2:
       print "Usage: hbase_throughput_cdf.py <input PATH 1> <label 1> ... " \
@@ -194,7 +195,7 @@ if __name__ == '__main__':
 
     for workload in workloads:
         fnames = []
-        for path in  fpaths:
+        for path in fpaths:
             fnames.append(path + "write-w"+workload+"-10R.dat")
         print "Processing.. "+ str(fnames)
         file_parser(fnames)

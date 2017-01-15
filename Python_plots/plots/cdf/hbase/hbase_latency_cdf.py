@@ -42,15 +42,14 @@ utils.set_rcs()
 
 
 def cdf(data, label, label_count):
-
-    data_size=len(data)
+    data_size = len(data)
     # Set bins edges
-    data_set=sorted(set(data))
-    bins=np.append(data_set, data_set[-1]+1)
+    data_set = sorted(set(data))
+    bins = np.append(data_set, data_set[-1]+1)
 
     # Use the histogram function to bin the data
     counts, bin_edges = np.histogram(data, bins=bins, density=False)
-    counts=counts.astype(float)/data_size
+    counts = counts.astype(float)/data_size
 
     # Find the cdf
     cdf = np.cumsum(counts)
@@ -78,79 +77,87 @@ def file_parser(fnames):
         minrto_outliers = 0
         start_ts = 0
         end_ts = 0
-        values = []
+        op_values = {"READ": [], "INSERT": [], "UPDATE": [], "CLEANUP": [],
+                     "SCAN": [], "READ-MODIFY-WRITE": []}
         for line in open(f).readlines():
-            fields = [x.strip() for x in line.split(",")]
-            if fields[0] not in ["READ", "INSERT", "UPDATE", "SCAN", "READ-MODIFY-WRITE"]:
-                if (fields[0] not in ["CLEANUP"]) and (fields[1] not in ["latency"]):
-                    print 'TYPE: %s -> NOT KNOWN '% fields[0]
+            # Skip information  Line
+            if "latency" in line:
+                print '-> Skipping info Line: %s' % line
                 continue
-            req_type = fields[0]
-            req_ts = datetime.datetime.fromtimestamp( float(fields[1]) / 1000.0)
-            req_latency = int(fields[2]) # Latency in micros
-            req_latency = int(req_latency/1000) # Convert to millis
-            values.append(req_latency)
-            # if (req_latency > 200) or (req_latency <=0.0):
-            #     minrto_outliers += 1
-            # else:
-            #     values.append(req_latency)
-            #print "request: %s ts %s latency %d" % (req_type, str( req_ts), req_latency)
+            else:
+                fields = [x.strip() for x in line.split(",")]
+                if fields[0] not in op_values.keys():
+                    print 'TYPE: %s -> NOT KNOWN ' % (fields[0])
+                else:
+                    req_type = fields[0]
+                    req_ts = datetime.datetime.fromtimestamp( float(fields[1]) / 1000.0) # Timestamp in ms
+                    req_latency = int(fields[2]) # Latency in micros
+                    op_values[req_type].append(req_latency/1000.0) # Convert to ms
+                    # if (req_latency > 200) or (req_latency <=0.0):
+                    #     minrto_outliers += 1
+                    # else:
+                    #     values.append(req_latency)
+                    #print "request: %s ts %s latency %d" % (req_type, str( req_ts), req_latency)
+                    # Start and End timestamps
+                    if j == 0:
+                        start_ts = req_ts
+                    elif j != 0:
+                        end_ts = req_ts
+                    j += 1
 
-            # Start and End timestamps
-            if j == 0:
-                start_ts = req_ts
-            elif j != 0:
-                end_ts = req_ts
-            j += 1
+        # values = utils.reject_outliers(np.array(values))
 
-        values = utils.reject_outliers(np.array(values))
-        print "--------------------------------------"
-        print "%s (%s)" % (labels[i], f)
-        print "--------------------------------------"
-        print "%d total samples - %d after filtering " % (j, values.size)
-        print "Runtime: %d seconds"% (end_ts-start_ts).total_seconds()
-        print "%d outliers due to MinRTO" % (minrto_outliers)
-        print "--------------------------------------"
+        for op in op_values.keys():
+            # Skipping empty operations
+            if len(op_values[op]) == 0:
+                continue
+            print "--------------------------------------"
+            print "%s (%s)" % (labels[i], f)
+            print "--------------------------------------"
+            print "%d total samples - %d after filtering " % (j, len(op_values[op]))
+            print "Runtime: %d seconds"% (end_ts-start_ts).total_seconds()
+            print "%d outliers due to MinRTO" % (minrto_outliers)
+            print "--------------------------------------"
 
-        # for type in ['READ', 'INSERT']:
-        if values.size == 0:
-            continue
-        # print "===== TYPE: %s ====="% (type)
-        print "Throughput: %d req/sec" % (j / (end_ts - start_ts).total_seconds())
-        avg = np.mean(values)
-        print "AVG: %f" % (avg)
-        median = np.median(values)
-        print "MEDIAN: %f" % (median)
-        min_val = np.min(values)
-        print "MIN: %ld" % (min_val)
-        max_val = np.max(values)
-        print "MAX: %ld" % (max_val)
-        stddev = np.std(values)
-        print " STDEV: %f" % (stddev)
-        print " PERCENTILES:"
-        perc1 = np.percentile(values, 1)
-        print " 1st: %f" % (perc1)
-        perc10 = np.percentile(values, 10)
-        print " 10th: %f" % (np.percentile(values, 10))
-        perc25 = np.percentile(values, 25)
-        print " 25th: %f" % (np.percentile(values, 25))
-        perc50 = np.percentile(values, 50)
-        print " 50th: %f" % (np.percentile(values, 50))
-        perc75 = np.percentile(values, 75)
-        print " 75th: %f" % (np.percentile(values, 75))
-        perc90 = np.percentile(values, 90)
-        print " 90th: %f" % (np.percentile(values, 90))
-        perc99 = np.percentile(values, 99)
-        print " 99th: %f" % (np.percentile(values, 99))
+            print "===== TYPE: %s ====="% (op)
+            print "Throughput: %d req/sec" % (j / (end_ts - start_ts).total_seconds())
+            avg = np.mean(op_values[op])
+            print "AVG: %f" % (avg)
+            median = np.median(op_values[op])
+            print "MEDIAN: %f" % (median)
+            min_val = np.min(op_values[op])
+            print "MIN: %f" % (min_val)
+            max_val = np.max(op_values[op])
+            print "MAX: %ld" % (max_val)
+            stddev = np.std(op_values[op])
+            print " STDEV: %f" % (stddev)
+            print " PERCENTILES:"
+            perc1 = np.percentile(op_values[op], 1)
+            print " 1st: %f" % perc1
+            perc10 = np.percentile(op_values[op], 10)
+            print " 10th: %f" % perc10
+            perc25 = np.percentile(op_values[op], 25)
+            print " 25th: %f" % perc25
+            perc50 = np.percentile(op_values[op], 50)
+            print " 50th: %f" % perc50
+            perc75 = np.percentile(op_values[op], 75)
+            print " 75th: %f" % perc75
+            perc90 = np.percentile(op_values[op], 90)
+            print " 90th: %f" % perc90
+            perc99 = np.percentile(op_values[op], 99)
+            print " 99th: %f" % perc99
 
+        all_values = []
+        for op in op_values.keys():
+            all_values += op_values[op]
+        values = utils.reject_outliers(np.asarray(all_values))
         cdf(values, labels[i], i)
-
         i += 1
 
 
 if __name__ == '__main__':
 
-    print "Sytem Path {}".format(os.environ['PATH'])
+    print "System Path {}".format(os.environ['PATH'])
 
     if len(sys.argv) < 2:
       print "Usage: hbase_latency_cdf.py <input PATH 1> <label 1> ... " \
@@ -168,12 +175,12 @@ if __name__ == '__main__':
       labels.append(sys.argv[2 + i])
 
     print 'PATH given: {}'.format("".join(fname for fname in fpaths))
-    print 'Labels given: {}'.format("".join(label for label in labels))
+    print 'Files given: {}'.format(" | ".join(fname for fname in fpaths))
 
     for workload in workloads:
         fnames = []
         for path in  fpaths:
             fnames.append(path + "write-w"+workload+"-10R.dat")
-        print "Processing.. "+ str(fnames)
+        print "Processing.. " + str(fnames)
         file_parser(fnames)
         utils.plot_cdf(outname+"w"+workload, ylabel="Request latency [ms]")
