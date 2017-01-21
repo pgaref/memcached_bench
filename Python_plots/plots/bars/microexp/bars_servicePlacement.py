@@ -31,7 +31,7 @@ import plots.utils as utils
 files = ["CPLEX-off_stats.csv", "CPLEX-on_stats.csv", "GR-NODE_CAND_stats.csv", "GR-SERIAL_stats.csv", "GR-RANDOM_stats.csv"]
 labels = ["ILP-offline", "ILP-online", "Node Candidates", "Random"]
 labels_map={"CPLEX-on": "ILP-online", "CPLEX-off": "ILP-offline",
-            "GR-NODE_CAND": "Node Candidates", "GR-RANDOM": "Greedy", "GR-SERIAL": "Aurora-Prelim"}
+            "GR-NODE_CAND": "Node Candidates", "GR-RANDOM": "Greedy", "GR-SERIAL": "Aurora"}
 
 hatch_patterns = ["", "/", "\\", "x", ".", "o", "O"]
 cluster_size = 100

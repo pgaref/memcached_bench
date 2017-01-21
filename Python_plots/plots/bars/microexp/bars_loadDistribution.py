@@ -31,7 +31,7 @@ import plots.utils as utils
 files = ["CPLEX-off_stats.csv", "CPLEX-on_stats.csv", "GR-NODE_CAND_stats.csv", "GR-SERIAL_stats.csv", "GR-RANDOM_stats.csv"]
 labels = ["ILP-offline", "ILP-online", "Node Candidates", "Random"]
 labels_map={"CPLEX-on": "ILP-online", "CPLEX-off": "ILP-offline",
-            "GR-NODE_CAND": "Node Candidates", "GR-RANDOM": "Greedy", "GR-SERIAL": "Aurora-Prelim"}
+            "GR-NODE_CAND": "Node Candidates", "GR-RANDOM": "Greedy", "GR-SERIAL": "Aurora"}
 
 hatch_patterns = ["", "/", "\\", "x", ".", "o", "O"]
 cluster_size = 100
@@ -121,7 +121,7 @@ def grouped_bar(data):
     ax.set_xticks(indexes)
     ax.set_xticklabels(["10", "20", "30", "40", "50", "60", "70", "80", "90", "100"])
     utils.plt.setp(utils.plt.xticks()[1], rotation=00)
-    # ax.set_xlim(0,11)
+    ax.set_xlim(0,11)
 
     # Add the axis labels
     ax.set_ylabel("Least Loaded Node \%")
@@ -169,5 +169,5 @@ if __name__ == '__main__':
     data = file_parser(fpaths)
     fig, axes = grouped_bar(data)
     utils.set_rcs()
-    utils.prepare_legend(legend_loc="lower left", legend_font=16)
+    utils.prepare_legend(legend_loc="upper left", legend_font=16)
     utils.writeout("%s"%outname)
