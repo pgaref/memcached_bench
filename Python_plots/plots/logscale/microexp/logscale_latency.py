@@ -30,20 +30,20 @@ import plots.utils as utils
 import brewer2mpl
 
 # brewer2mpl.get_map args: set name  set type  number of colors
-bmap = brewer2mpl.get_map('RdBu', 'Diverging', 4)
-# bmap = brewer2mpl.get_map('Set1', 'Qualitative', 4)
+# bmap = brewer2mpl.get_map('RdBu', 'Diverging', 5)
+bmap = brewer2mpl.get_map('Set1', 'Qualitative', 5)
 colors = bmap.mpl_colors
 
 
 files = ["CPLEX-off_stats.csv", "CPLEX-on_stats.csv", "GR-NODE_CAND_stats.csv", "GR-SERIAL_stats.csv", "GR-RANDOM_stats.csv"]
 labels = ["ILP-offline", "ILP-online", "Node Candidates", "Random"]
 labels_map={"CPLEX-on": "ILP-online", "CPLEX-off": "ILP-offline",
-            "GR-NODE_CAND": "Node Candidates", "GR-RANDOM": "Greedy"}
+            "GR-NODE_CAND": "Node Candidates", "GR-RANDOM": "Greedy", "GR-SERIAL": "Aurora-Prelim"}
 
 
 # colors = ['r', 'g', 'b', 'black', 'c', 'm']
 markers = ['o', '^', 'v', 'h', 'x']
-linestyle_list = ['--', '-.', ':', '-']
+linestyle_list = ['--', '-', ':', '-', '-.']
 
 # Global style configuration
 utils.set_rcs()
