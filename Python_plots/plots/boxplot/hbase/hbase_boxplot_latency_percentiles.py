@@ -38,8 +38,7 @@ utils.set_rcs(isboxPlot=True)
 data = {}
 
 # ALL workloads
-workloads = ["A", "B", "C", "D", "F"]
-# workloads = ["A", "B", "C", "D", "E", "F"]
+workloads = ["A", "B", "C", "D", "E", "F"]
 systems_compared = ['YARN', 'YARN-Cgroups', 'MEDEA', 'MEDEA-Cgroups']
 
 
@@ -155,4 +154,4 @@ if __name__ == '__main__':
         data[workload] = {}
         file_parser(fnames, workload)
 
-    utils.plot_multiboxplot(data, outname, workloads, systems_compared, labels)
+    utils.plot_multiboxplot(data, outname, ["A", "B", "C", "D", "F"], systems_compared, labels)

@@ -30,6 +30,12 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fnt
 import numpy as np
+import brewer2mpl
+
+# brewer2mpl.get_map args: set name  set type  number of colors
+bmapSpectral = brewer2mpl.get_map('RdYlBu', 'Diverging', 4)
+colorMap = bmapSpectral.hex_colors
+
 
 
 textsize = 34
@@ -168,8 +174,25 @@ def plot_scatter(outname, workloads, latency_data, throughput_data, systems_comp
         plt.clf()
 
 
+def color_box(bp):
+    color_list = [colorMap[0], colorMap[1], colorMap[3], colorMap[2]]
+    double_color_list = [colorMap[0], colorMap[0], colorMap[1], colorMap[1], colorMap[3],  colorMap[3], colorMap[2], colorMap[2]]
+    # Define the elements to color. You can also add medians, fliers and means
+    elements = ['boxes','caps','whiskers']
+    # Iterate over each of the elements changing the color
+    for elem in elements:
+        i = 0
+        for idx in xrange(len(bp[elem])):
+            if elem == 'boxes':
+                plt.setp(bp[elem][idx], color=color_list[i])
+            else:
+                plt.setp(bp[elem][idx], color=double_color_list[i])
+            i += 1
+    return
+
+
 def plot_multiboxplot(data, outname, workloads, systems_compared, systems_labels):
-    fig, axes = plt.subplots(ncols=len(workloads), sharey=True)
+    fig, axes = plt.subplots(ncols=len(workloads)+1, sharey=True)
     fig.subplots_adjust(wspace=0)
     # fig.text(0.5, 0.04, "YCSB Workloads", ha='center')
     fig.text(0.04, 0.5, "Request latency [ms]", va='center', rotation='vertical',
@@ -177,10 +200,10 @@ def plot_multiboxplot(data, outname, workloads, systems_compared, systems_labels
 
     for ax, name in zip(axes, workloads):
         # whis from 5th to 99th precentile
-        ax.boxplot(x=[data[name][item] for item in systems_compared], whis=[5, 99], sym=" ")
-        xtickNames = ax.set(xticklabels=systems_labels)
-        plt.setp(xtickNames, rotation=90, fontsize=textsize/2)
-
+        bp = ax.boxplot(x=[data[name][item] for item in systems_compared], whis=[5, 99], sym=" ")
+        color_box(bp)
+        xtickNames = ax.set(xticklabels='')
+        # plt.setp(xtickNames, rotation=90, fontsize=textsize/2)
         workloadXtick = ax.set(xlabel='workload'+name)
         plt.setp(workloadXtick)
         # # Add a horizontal grid to the plot, but make it very light in color
@@ -190,13 +213,47 @@ def plot_multiboxplot(data, outname, workloads, systems_compared, systems_labels
         # Hide these grid behind plot objects
         ax.set_axisbelow(True)
         ax.margins(0.05) # Optional
+    for ax in axes:
+        ax.set(xticklabels='')
+
+    # WorkloadE on a separate plot ?
+    # now, the second axes that shares the x-axis with the ax1
+    ax2 = fig.add_subplot(1,8, 8)
+    bp = ax2.boxplot(x=[data["E"][item] for item in systems_compared], whis=[5, 99], sym=" ")
+    color_box(bp)
+    ax2.set(xticklabels='')
+    workloadXtick = ax2.set(xlabel='workloadE')
+    plt.setp(workloadXtick)
+    ax2.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5)
+    # Hide these grid behind plot objects
+    ax2.set_axisbelow(True)
+    ax2.margins(0.05)  # Optional
+    ax2.yaxis.tick_right()
+    ax2.yaxis.set_label_position("right")
+
     # plt.ylim((0,50))
     # plt.xlim((-1,100))
     # plt.legend(loc=4, frameon=True, handlelength=2.5, handletextpad=0.2)
     # axes
-    axes = plt.gca()
-    ymin, ymax = axes.get_ylim()
-    plt.ylim(0, ymax-100)
+    # axes = plt.gca()
+    # ymin, ymax = axes.get_ylim()
+    # plt.ylim(0, ymax-100)
+    # draw temporary red and blue lines and use them to create a legend
+    rc('legend', frameon=True)
+    legfont = fnt.FontProperties()
+    legfont.set_size('xx-small')
+    hA, = plt.plot([1, 1], colorMap[0])
+    hB, = plt.plot([1, 1], colorMap[1])
+    hC, = plt.plot([1, 1], colorMap[3])
+    hD, = plt.plot([1, 1], colorMap[2])
+    leg = plt.legend((hA, hB, hC, hD), (systems_compared),bbox_to_anchor=(1.9, 1.1), loc='upper right', ncol=4,
+                     fancybox=True, prop=legfont)
+    leg.get_frame().set_alpha(0.0)
+    hA.set_visible(False)
+    hB.set_visible(False)
+    hC.set_visible(False)
+    hD.set_visible(False)
+
     # Global style configuration
     set_rcs(isboxPlot=True)
     print "Done with plots"
