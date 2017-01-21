@@ -108,15 +108,7 @@ def grouped_bar(data):
 
     i = 0
     for cond in conditions:
-        objective_vals = data[data[:, 0] == cond][:, 2].astype(np.float)
-        y_vals = []
-        index = 0
-        for value in objective_vals:
-            # calculate percentage
-            # print 'Current Value:', value, ' - Optimistic Value: ', calc_max_value(categories[index])
-            y_vals.append(percentage(value, calc_max_value(categories[index])))
-            index += 1
-
+        y_vals = data[data[:, 0] == cond][:, 2].astype(np.float)
         pos = [j - (1 - space) / 2. + i * width for j in range(1, len(categories) + 1)]
         if labels_map.has_key(str(cond).strip()):
             ax.bar(pos, y_vals, width=width, label=labels_map[str(cond).strip()], color=get_colors()[i],
@@ -129,10 +121,10 @@ def grouped_bar(data):
     ax.set_xticks(indexes)
     ax.set_xticklabels(["10", "20", "30", "40", "50", "60", "70", "80", "90", "100"])
     utils.plt.setp(utils.plt.xticks()[1], rotation=00)
-    ax.set_xlim(0,11)
+    # ax.set_xlim(0,11)
 
     # Add the axis labels
-    ax.set_ylabel("Placement Efficiency \%")
+    ax.set_ylabel("Cluster Fragmentation \%")
     ax.set_xlabel("Services Running [Cluster \%]")
 
     # optimal_line_graph('100*( x*8 ) + '+str(cluster_size) + '+ 100', range(0, len(categories) + 1))
@@ -149,9 +141,9 @@ def file_parser(fnames):
     file_data = (pd.read_csv(f) for f in fnames)
     all_data = pd.concat(file_data, ignore_index=True)
     # grouped_data = all_data.groupby(['  Plan technique', '  totJobs'])['  ObjectiveValue '].mean()
-    # # print all_data.columns.values
+    print all_data.columns.values
     # print grouped_data
-    numpyMatrix = all_data[['  Plan technique', '  totJobs','  ObjectiveValue ']].values
+    numpyMatrix = all_data[['  Plan technique', '  totJobs','  FragmentedNodes']].values
     # print numpyMatrix
     return numpyMatrix
 
@@ -161,10 +153,10 @@ if __name__ == '__main__':
     print "Sytem Path {}".format(os.environ['PATH'])
 
     if len(sys.argv) < 2:
-        print "Usage: bars_efficiency.py.py <input PATH>"
+        print "Usage: bars_fragmentation.py.py <input PATH>"
         sys.exit(-1)
 
-    outname = "placement_efficiency_bars"
+    outname = "placement_fragmentation_bars"
 
     fpaths = []
     for file in files:
