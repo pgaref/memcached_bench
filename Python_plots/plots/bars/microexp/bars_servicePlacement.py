@@ -121,10 +121,10 @@ def grouped_bar(data):
     ax.set_xticks(indexes)
     ax.set_xticklabels(["10", "20", "30", "40", "50", "60", "70", "80", "90", "100"])
     utils.plt.setp(utils.plt.xticks()[1], rotation=00)
-    # ax.set_xlim(0,11)
+    ax.set_xlim(0,11)
 
     # Add the axis labels
-    ax.set_ylabel("Successfully Placed \%")
+    ax.set_ylabel("Successfully Placed [\%]")
     ax.set_xlabel("Services Running [Cluster \%]")
 
     # optimal_line_graph('100*( x*8 ) + '+str(cluster_size) + '+ 100', range(0, len(categories) + 1))

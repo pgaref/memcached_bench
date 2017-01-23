@@ -132,7 +132,7 @@ def grouped_bar(data):
     ax.set_xlim(0,11)
 
     # Add the axis labels
-    ax.set_ylabel("Placement Efficiency \%")
+    ax.set_ylabel("Placement Efficiency [\%]")
     ax.set_xlabel("Services Running [Cluster \%]")
 
     # optimal_line_graph('100*( x*8 ) + '+str(cluster_size) + '+ 100', range(0, len(categories) + 1))
