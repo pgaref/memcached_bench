@@ -213,8 +213,13 @@ def plot_multiboxplot(data, outname, workloads, systems_compared, systems_labels
         # Hide these grid behind plot objects
         ax.set_axisbelow(True)
         ax.margins(0.05) # Optional
+    i = 0
     for ax in axes:
         ax.set(xticklabels='')
+        if i == len(workloads):
+            # ax.yaxis.set_tick_params(direction='in')
+            ax.get_yaxis().set_tick_params(direction='out', color='white')
+        i += 1
 
     # WorkloadE on a separate plot ?
     # now, the second axes that shares the x-axis with the ax1
