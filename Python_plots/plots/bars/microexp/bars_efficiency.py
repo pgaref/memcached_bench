@@ -94,6 +94,7 @@ def grouped_bar(data):
     #     # hue_order=["oracle", "bayesian"],
     #     data=data)
     fig = utils.plt.figure()
+    fig.set_size_inches(4, 2.5)
     ax = fig.add_subplot(111)
 
     space = 0.25
@@ -132,8 +133,8 @@ def grouped_bar(data):
     ax.set_xlim(0,11)
 
     # Add the axis labels
-    ax.set_ylabel("Placement Efficiency [\%]")
-    ax.set_xlabel("Services Running [Cluster \%]")
+    ax.set_ylabel("Placement Efficiency [\%]", fontsize=12)
+    ax.set_xlabel("Services Running [Cluster \%]", fontsize=12)
 
     # optimal_line_graph('100*( x*8 ) + '+str(cluster_size) + '+ 100', range(0, len(categories) + 1))
 
@@ -176,6 +177,6 @@ if __name__ == '__main__':
 
     data = file_parser(fpaths)
     fig, axes = grouped_bar(data)
-    utils.set_rcs()
-    utils.prepare_legend(legend_loc="lower left", legend_font=16)
+    utils.set_rcs(figureStyle=None)
+    utils.prepare_legend(legend_loc="lower left")
     utils.writeout("%s"%outname)

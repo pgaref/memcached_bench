@@ -57,7 +57,8 @@ def cdf(data, label_count, label):
     cdf = np.cumsum(counts)
 
     # Plot the cdf
-    utils.plt.plot(bin_edges[0:-1], cdf,linestyle=linestyle_list[label_count], label=systems_labels[label_count], color=colors[label_count])
+    utils.plt.plot(bin_edges[0:-1], cdf, linewidth=1.5, linestyle=linestyle_list[label_count],
+                   label=systems_labels[label_count], color=colors[label_count])
 
 
 
@@ -155,4 +156,4 @@ if __name__ == '__main__':
         fnames.append(path + "trendingHashTags.log")
     print "Processing.. "+ str(fnames)
     file_parser(fnames)
-    utils.plot_cdf(outname, ylabel="Cache request latency [ms]")
+    utils.plot_cdf(outname, ylabel="Request latency [ms]")

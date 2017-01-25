@@ -31,7 +31,7 @@ import plots.utils as utils
 
 
 # Global style configuration
-utils.set_rcs(isboxPlot=True)
+utils.set_rcs(isboxPlot=True, figureStyle=2)
 
 
 # ALL DATA
@@ -155,3 +155,4 @@ if __name__ == '__main__':
         file_parser(fnames, workload)
 
     utils.plot_multiboxplot(data, outname, ["A", "B", "C", "D", "F"], systems_compared, labels)
+    # /media/mydatadrive/Medea/results-test/yarn/test/ YARN /media/mydatadrive/Medea/results-test/yarn-cgroups/test/ YARN-Cgroups /media/mydatadrive/Medea/results-test/medea/test/ MEDEA /media/mydatadrive/Medea/results-test/medea-cgroups/test/ MEDEA-Cgroups

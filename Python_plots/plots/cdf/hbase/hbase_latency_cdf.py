@@ -38,7 +38,7 @@ workloads = ["A", "B", "C", "D", "E", "F"]
 systems_compared = ['YARN', 'YARN-Cgroups', 'MEDEA', 'MEDEA-Cgroups']
 
 # Global style configuration
-utils.set_rcs()
+utils.set_rcs(figureStyle=3)
 
 
 def cdf(data, label, label_count):
