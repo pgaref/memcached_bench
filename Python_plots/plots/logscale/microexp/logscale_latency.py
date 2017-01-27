@@ -51,7 +51,6 @@ utils.set_rcs()
 
 def latency_logscale(data):
     fig = utils.plt.figure()
-    fig.set_size_inches(4, 2.8)
     ax = fig.add_subplot(111)
 
     space = 0.25
@@ -69,11 +68,9 @@ def latency_logscale(data):
         print "cond:", cond
         y_vals = data[data[:, 0] == cond][:, 2].astype(np.float)
         x_vals = data[data[:, 0] == cond][:, 1].astype(np.int)
-        pos = [j - (1 - space) / 2. + i * width for j in range(1, len(categories) + 1)]
         if labels_map.has_key(str(cond).strip()):
             ax.plot(x_vals, y_vals, label=labels_map[str(cond).strip()], color=colors[i], linestyle=linestyle_list[i],
-                    marker=markers[i], linewidth=1.5,)
-            # ,   edgecolor=get_colors()[i+1],hatch=hatch_patterns[i])
+                    marker=markers[i], linewidth=1)
             i +=1
 
     indexes = range(1, len(categories) + 1)
@@ -81,8 +78,8 @@ def latency_logscale(data):
     print "Categories: ", categories
 
     # Add the axis labels
-    ax.set_ylabel("Latency (ms)", fontsize=12)
-    ax.set_xlabel("Number of Nodes", fontsize=12)
+    ax.set_ylabel("Latency (ms)")
+    ax.set_xlabel("Number of Nodes")
 
     # Make Y axis logscale
     utils.plt.yscale('log', nonposy='clip')
@@ -127,7 +124,7 @@ if __name__ == '__main__':
 
     data = file_parser(fpaths)
     fig, axes = latency_logscale(data)
-    utils.set_rcs(isboxPlot=True)
+    utils.set_rcs()
     utils.plt.grid(True, which='major', alpha=0.3)
-    utils.prepare_legend(legend_loc="upper left")
+    utils.prepare_legend(legend_loc="upper left", legend_ncol=2, alpha_num=1.0, bbox_to_anchor=(0.05, 1.22))
     utils.writeout("%s"%outname)

@@ -31,7 +31,7 @@ import plots.utils as utils
 
 
 # Global style configuration
-utils.set_rcs(isboxPlot=True, figureStyle=2)
+utils.set_rcs()
 
 
 # ALL DATA
