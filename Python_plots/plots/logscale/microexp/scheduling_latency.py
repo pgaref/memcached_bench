@@ -82,7 +82,7 @@ def scheduling_latency(data):
     ax.set_xlim(0, indexes[len(indexes)-1]+1)
 
     # Add the axis labels
-    ax.set_ylabel("Task scheduling Latency (ms)")
+    ax.set_ylabel("Container scheduling Latency (ms)")
     ax.set_xlabel("Percentage of Services")
 
     # Make Y axis logscale
