@@ -71,8 +71,9 @@ def file_parser(fnames, workload):
             req_type = fields[0]
             req_ts = datetime.datetime.fromtimestamp( float(fields[1]) / 1000.0)
             req_latency = int(fields[2]) # Latency in micros
-            req_latency = int(req_latency/1000) # Convert to millis
-            values.append(req_latency)
+            req_latency = int(req_latency/1000.0) # Convert to millis
+            if req_latency > 0.0:
+                values.append(req_latency)
             #print "request: %s ts %s latency %d" % (req_type, str( req_ts), req_latency)
 
             # Start and End timestamps

@@ -38,7 +38,7 @@ colors = bmap.mpl_colors
 files = ["CPLEX-off_stats.csv", "CPLEX-on_stats.csv", "GR-NODE_CAND_stats.csv", "GR-SERIAL_stats.csv", "GR-RANDOM_stats.csv"]
 labels = ["ILP-offline", "ILP-online", "Node Candidates", "Random"]
 labels_map={"CPLEX-on": "ILP-online", "CPLEX-off": "ILP-offline",
-            "GR-NODE_CAND": "Node Candidates", "GR-RANDOM": "Greedy", "GR-SERIAL": "Aurora"}
+            "GR-NODE_CAND": "Node Candidates", "GR-RANDOM": "Popular Tags", "GR-SERIAL": "Aurora"}
 
 
 # colors = ['r', 'g', 'b', 'black', 'c', 'm']
@@ -126,5 +126,5 @@ if __name__ == '__main__':
     fig, axes = latency_logscale(data)
     utils.set_rcs()
     utils.plt.grid(True, which='major', alpha=0.3)
-    utils.prepare_legend(legend_loc="upper left", legend_ncol=2, alpha_num=1.0, bbox_to_anchor=(0.05, 1.22))
+    utils.prepare_legend(legend_loc="upper left", legend_ncol=2, alpha_num=1.0, bbox_to_anchor=(0.03, 1.22))
     utils.writeout("%s"%outname)

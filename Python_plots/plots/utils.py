@@ -74,6 +74,7 @@ def prepare_legend(legend_loc=1, legend_ncol=1, alpha_num=0.8, bbox_to_anchor=No
     else:
         leg = plt.legend(loc=legend_loc, ncol=legend_ncol, fancybox=True)
     leg.get_frame().set_alpha(alpha_num)
+    # leg.get_frame().set_linewidth(0.1)
     return
 
 
@@ -94,8 +95,8 @@ def set_paper_rcs():
   rc('figure', figsize=(3.33,2.22))
 #  rc('figure.subplot', left=0.10, top=0.90, bottom=0.12, right=0.95)
   rc('axes', linewidth=0.5)
+  #   rc('axes', linewidth=0.2)
   rc('lines', linewidth=0.5)
-
 
 
 def set_rcs( ):
@@ -248,13 +249,13 @@ def plot_multiboxplot(data, outname, workloads, systems_compared, systems_labels
     fig.subplots_adjust(wspace=0)
     # fig.text(0.5, 0.04, "YCSB Workloads", ha='center')
     fig.text(0.02, 0.5, "Request latency [ms]", va='center', rotation='vertical')
-
     for ax, name in zip(axes, workloads):
         # whis from 5th to 99th precentile
         bp = ax.boxplot(x=[data[name][item] for item in systems_compared], whis=[5, 99], sym=" ")
-        plt.setp(bp['boxes'], linewidth=0.8)
-        plt.setp(bp['medians'], linewidth=0.7)
-        plt.setp(bp['whiskers'], linewidth=0.8)
+        # ax.set_yscale('log')
+        plt.setp(bp['boxes'], linewidth=0.6)
+        plt.setp(bp['medians'], linewidth=0.6)
+        plt.setp(bp['whiskers'], linewidth=0.7)
         color_box(bp)
         xtickNames = ax.set(xticklabels='')
         # plt.setp(xtickNames, rotation=90, fontsize=textsize/2)
@@ -269,19 +270,23 @@ def plot_multiboxplot(data, outname, workloads, systems_compared, systems_labels
         ax.margins(0.05) # Optional
     i = 0
     for ax in axes:
+        xaxis = ax.xaxis
+        xaxis.set_ticks_position('none')
+        yaxis = ax.yaxis
+        yaxis.set_ticks_position('none')
         ax.set(xticklabels='')
-        if i == len(workloads):
-            # ax.yaxis.set_tick_params(direction='in')
-            ax.get_yaxis().set_tick_params(direction='out', color='white')
+        # if i == len(workloads):
+        #     # ax.yaxis.set_tick_params(direction='in')
+        #     ax.get_yaxis().set_tick_params(direction='out', color='white')
         i += 1
-
     # WorkloadE on a separate plot ?
     # now, the second axes that shares the x-axis with the ax1
-    ax2 = fig.add_subplot(1,8, 8)
+    ax2 = fig.add_subplot(1, 8, 8)
     bp = ax2.boxplot(x=[data["E"][item] for item in systems_compared], whis=[5, 99], sym=" ")
-    plt.setp(bp['boxes'], linewidth=0.8)
-    plt.setp(bp['medians'], linewidth=0.7)
-    plt.setp(bp['whiskers'], linewidth=0.8)
+    # ax2.set_yscale('log')
+    plt.setp(bp['boxes'], linewidth=0.6)
+    plt.setp(bp['medians'], linewidth=0.6)
+    plt.setp(bp['whiskers'], linewidth=0.7)
     color_box(bp)
     ax2.set(xticklabels='')
     workloadXtick = ax2.set(xlabel='E')
@@ -292,6 +297,11 @@ def plot_multiboxplot(data, outname, workloads, systems_compared, systems_labels
     ax2.margins(0.05)  # Optional
     ax2.yaxis.tick_right()
     ax2.yaxis.set_label_position("right")
+
+    xaxis = ax2.xaxis
+    xaxis.set_ticks_position('none')
+    yaxis = ax2.yaxis
+    yaxis.set_ticks_position('none')
 
     # plt.ylim((0,50))
     # plt.xlim((-1,100))
@@ -318,6 +328,7 @@ def plot_multiboxplot(data, outname, workloads, systems_compared, systems_labels
 
     # Global style configuration
     set_rcs()
+    # plt.rcParams['axes.linewidth'] = 5  # set the value globally
     print "Done with plots"
     writeout("%s"%outname)
     print "Done with Writing to file"
