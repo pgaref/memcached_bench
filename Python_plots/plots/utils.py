@@ -85,14 +85,14 @@ paper_figsize_medium_square = (2, 2)
 #paper_figsize_medium = (1.66, 1.1)
 paper_figsize_large = (3, 2)
 paper_figsize_bigsim3 = (2.4, 1.7)
-
+paper_figsize_default = (3.33,2.22)
 
 def set_paper_rcs():
   rc('font', family='serif', size=9)
   rc('text.latex', preamble=['\usepackage{times,mathptmx}'])
   rc('text', usetex=True)
   rc('legend', fontsize=8)
-  rc('figure', figsize=(3.33,2.22))
+  rc('figure', paper_figsize_default)
 #  rc('figure.subplot', left=0.10, top=0.90, bottom=0.12, right=0.95)
   rc('axes', linewidth=0.5)
   #   rc('axes', linewidth=0.2)
