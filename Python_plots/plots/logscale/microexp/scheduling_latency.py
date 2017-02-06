@@ -90,10 +90,6 @@ def scheduling_latency(data):
     ax.set_yticklabels(str_ylabels)
 
 
-    str_xlabels = []
-    for x_tick in ax.get_xticks():
-        str_xlabels.append(str(int(x_tick)))
-    ax.set_xticklabels(str_xlabels)
     # Make Y axis logscale
     # utils.plt.yscale('log', nonposy='clip')
     # Add a legend
