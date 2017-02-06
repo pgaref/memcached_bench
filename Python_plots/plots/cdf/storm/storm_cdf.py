@@ -39,6 +39,8 @@ linestyle_list = ['--', '-.', '-', ':']
 systems_compared = ['YARN', 'MEDEA (intra-only)', 'MEDEA']
 systems_labels = ['YARN', 'MEDEA \n (intra-only)', 'MEDEA']
 
+fig = utils.plt.figure()
+ax = fig.add_subplot(111)
 
 def cdf(data, label_count, label):
 
@@ -57,8 +59,17 @@ def cdf(data, label_count, label):
     cdf = np.cumsum(counts)
 
     # Plot the cdf
-    utils.plt.plot(bin_edges[0:-1], cdf, linewidth=1.5, linestyle=linestyle_list[label_count],
+    ax.plot(bin_edges[0:-1], cdf, linewidth=1.5, linestyle=linestyle_list[label_count],
                    label=systems_labels[label_count], color=colors[label_count])
+
+    str_ylabels = ['0.0', '0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0']
+    ax.set_yticklabels(str_ylabels)
+
+    str_xlabels = ['0']
+    for x_tick in ax.get_xticks():
+        print x_tick
+        str_xlabels.append(str(int(x_tick)))
+    ax.set_xticklabels(str_xlabels)
 
 
 
