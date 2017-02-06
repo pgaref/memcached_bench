@@ -30,8 +30,8 @@ import plots.utils as utils
 import brewer2mpl
 
 # brewer2mpl.get_map args: set name  set type  number of colors
-# bmap = brewer2mpl.get_map('RdBu', 'Diverging', 5)
-bmap = brewer2mpl.get_map('Set1', 'Qualitative', 5)
+colors_div = ['tomato', 'plum', 'dimgrey']
+bmap = brewer2mpl.get_map('Paired', 'Qualitative',4)
 colors = bmap.mpl_colors
 
 
@@ -80,8 +80,12 @@ def latency_logscale(data):
         y_vals = data[data[:, 0] == cond][:, 2].astype(np.float)
         x_vals = data[data[:, 0] == cond][:, 1].astype(np.int)
         if labels_map.has_key(str(cond).strip()):
-            ax.plot(x_vals, y_vals, label=labels_map[str(cond).strip()], color=colors[i], linestyle=linestyle_list[i],
-                    marker=markers[i], linewidth=1)
+            if i < 2:
+                ax.plot(x_vals, y_vals, label=labels_map[str(cond).strip()], color=colors[len(colors)-3-i], linestyle=linestyle_list[i],
+                        marker=markers[i], linewidth=1)
+            else:
+                ax.plot(x_vals, y_vals, label=labels_map[str(cond).strip()], color=colors_div[i-2],
+                        linestyle=linestyle_list[i], marker=markers[i], linewidth=1)
             i +=1
 
     indexes = range(1, len(categories) + 1)
@@ -89,7 +93,7 @@ def latency_logscale(data):
     print "Categories: ", categories
 
     # Add the axis labels
-    ax.set_ylabel("Latency (ms)")
+    ax.set_ylabel("Latency ms)")
     ax.set_xlabel("Number of Nodes", )
 
     # Make Y axis logscale

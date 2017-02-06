@@ -34,8 +34,9 @@ labels = ["ILP-offline", "ILP-online", "Node Candidates", "Random"]
 labels_map={"CPLEX-on": "MEDEA", "CPLEX-off": "MEDEA offline",
             "GR-NODE_CAND": "Node Candidates", "GR-RANDOM": "Popular Tags", "GR-SERIAL": "Aurora"}
 
-bmap = brewer2mpl.get_map('Paired', 'Qualitative', 5)
-colors = bmap.hex_colors
+colors_div = ['tomato', 'plum', 'dimgrey']
+bmap = brewer2mpl.get_map('Paired', 'Qualitative',4)
+colors = bmap.mpl_colors
 
 hatch_patterns = ["\\\\\\\\", "xxxxx", "", "......", "//////", "o", "O"]
 cluster_size = 100
@@ -115,8 +116,13 @@ def grouped_bar(data):
         y_vals = data[data[:, 0] == cond][:, 2].astype(np.float)
         pos = [j - (1 - space) / 2. + i * width for j in range(1, len(categories) + 1)]
         if labels_map.has_key(str(cond).strip()):
-            ax.bar(pos, y_vals, width=width, label=labels_map[str(cond).strip()], color=colors[i],
-                   hatch=hatch_patterns[i], edgecolor='black', linewidth=0.05)
+            if i < 2:
+                ax.bar(pos, y_vals, width=width, label=labels_map[str(cond).strip()], color=colors[len(colors)-3-i],
+                       hatch=hatch_patterns[i], edgecolor='black', linewidth=0.05)
+            else:
+                ax.bar(pos, y_vals, width=width, label=labels_map[str(cond).strip()], color=colors_div[i-2],
+                       hatch=hatch_patterns[i], edgecolor='black', linewidth=0.05)
+
             i +=1
 
     indexes = np.arange(1, len(categories)+1, 1)
@@ -129,7 +135,7 @@ def grouped_bar(data):
 
     # Add the axis labels
     ax.set_ylabel("Fragmentation [\%]", labelpad=2)
-    ax.set_xlabel("Services Running [Cluster \%]", labelpad=2)
+    ax.set_xlabel("Services running [cluster \%]", labelpad=2)
 
     str_ylabels = []
     for y_tick in ax.get_yticks():
