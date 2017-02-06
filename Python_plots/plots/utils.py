@@ -28,13 +28,12 @@ use('Agg')
 import matplotlib
 #matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import matplotlib.font_manager as fnt
 import numpy as np
 import brewer2mpl
 
 # brewer2mpl.get_map args: set name  set type  number of colors
-bmapSpectral = brewer2mpl.get_map('RdYlBu', 'Diverging', 4)
-colorMap = bmapSpectral.hex_colors
+bmap = brewer2mpl.get_map('Paired', 'Qualitative', 4)
+colorMap = bmap.hex_colors
 
 
 paperMode = True
@@ -55,9 +54,9 @@ def reject_outliers(data, m=3):
 def writeout(filename_base, tight=True):
   for fmt in ['pdf']:
     if tight:
-      plt.savefig("%s.%s" % (filename_base, fmt), format=fmt, bbox_inches='tight', pad_inches=0.01)
+        plt.savefig("%s.%s" % (filename_base, fmt), format=fmt, bbox_inches='tight', pad_inches=0.01)
     else:
-      plt.savefig("%s.%s" % (filename_base, fmt), format=fmt)
+        plt.savefig("%s.%s" % (filename_base, fmt), format=fmt)
 
 
 def set_leg_fontsize(size):
@@ -84,14 +83,19 @@ paper_figsize_medium = (2, 1.33)
 paper_figsize_medium_square = (2, 2)
 #paper_figsize_medium = (1.66, 1.1)
 paper_figsize_large = (3, 2)
-paper_figsize_bigsim3 = (2.4, 1.7)
-paper_figsize_default = (3.33, 2.22)
+paper_figsize_storm_cdf = (2.2, 1.22) # font=6, 5
+paper_figsize_latency_boxplot = (3.33, 2.22)  # 12, 6
+paper_figsize_logscale = (3.33, 2)  # 8, 6
+paper_figsize_microexp_bars = (3.33, 2)  # 8, 6
+paper_figsize_throughput_bars = (3.33, 2.22)  # 11, 6
+paper_figsize_default = (3.33, 2.22)  # 11, 6
 
 def set_paper_rcs():
-  rc('font', family='serif', size=9)
-  rc('text.latex', preamble=['\usepackage{times,mathptmx}'])
+  rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica']})
+  rc('font', size=12)
   rc('text', usetex=True)
-  rc('legend', fontsize=8)
+  # rc('text.latex', preamble=['\usepackage{mathptmx,sans-serif}'])
+  rc('legend', fontsize=6)
   rc('figure', figsize=paper_figsize_default)
 #  rc('figure.subplot', left=0.10, top=0.90, bottom=0.12, right=0.95)
   rc('axes', linewidth=0.5)
@@ -102,63 +106,6 @@ def set_paper_rcs():
 def set_rcs( ):
     if paperMode:
         set_paper_rcs()
-
-    # if paperMode:
-    #     # rcParams dict
-    #     rcParams['font.size'] = paper_textsize
-    #     rcParams['axes.labelsize']  = paper_textsize
-    #     rcParams['xtick.labelsize'] = paper_textsize
-    #     rcParams['ytick.labelsize'] = paper_textsize
-    #     rcParams['legend.fontsize'] = paper_textsize
-    #     rcParams['font.family'] = 'serif'
-    #     rcParams['font.serif'] = ['Computer Modern Roman']
-    #     rcParams['text.usetex'] = True
-    #
-    #     # Single plot
-    #     if figureStyle == 1:
-    #         rcParams['figure.figsize'] = 4, 2
-    #     # Multi boxplot
-    #     elif figureStyle == 2:
-    #         rcParams['figure.figsize'] = 6, 4
-    #         rcParams['axes.labelsize']  = paper_textsize+5
-    #         rcParams['xtick.labelsize'] = paper_textsize
-    #         rcParams['ytick.labelsize'] = paper_textsize+5
-    #         rcParams['legend.fontsize'] = paper_textsize
-    #     # CDFs
-    #     elif figureStyle == 3:
-    #         rcParams['figure.figsize'] = 5,  3
-    #         rcParams['font.size'] = paper_textsize+15
-    #         rcParams['axes.labelsize']  = paper_textsize+15
-    #         rcParams['xtick.labelsize'] = paper_textsize+10
-    #         rcParams['ytick.labelsize'] = paper_textsize+10
-    #         rcParams['legend.fontsize'] = paper_textsize+5
-    #
-    #     if not isboxPlot:
-    #         plt.grid(True, which='both', alpha=0.3)
-    # # else:
-    # #     textsize = 34
-    # #     rc('axes', linewidth=0.5)
-    # #     rc('lines', linewidth=1)
-    # #
-    # #     if not isboxPlot:
-    # #         plt.rcParams['font.size'] = textsize
-    # #         plt.rcParams['xtick.labelsize'] = textsize - 4
-    # #         plt.rcParams['ytick.labelsize'] = textsize - 4
-    # #         plt.gca().yaxis.grid(True, alpha=0.85)
-    # #         plt.grid(True)
-    # #     else:
-    # #         plt.rcParams['font.size'] = textsize - 10
-    # #         plt.rcParams['xtick.labelsize'] = textsize/2 -12
-    # #         plt.rcParams['ytick.labelsize'] = textsize/2
-    # #         plt.rc('axes',   labelsize=(textsize/2 -2))  # fontsize of the x any y labels
-    # #         # plt.rc('font', size=SIZE)  # controls default text sizes
-    # #         # plt.rc('axes', titlesize=SIZE)  # fontsize of the axes title
-    # #         # plt.rc('axes', labelsize=SIZE)  # fontsize of the x any y labels
-    # #         # plt.rc('xtick', labelsize=SIZE)  # fontsize of the tick labels
-    # #         # plt.rc('ytick', labelsize=SIZE)  # fontsize of the tick labels
-    # #         # plt.rc('legend', fontsize=SIZE)  # legend fontsize
-    # #         # plt.rc('figure', titlesize=SIZE)  # # size of the figure title
-
     return
 
 
@@ -166,10 +113,9 @@ def plot_cdf(outname, ylabel):
     plt.ylim((0,1))
     plt.yticks(np.arange(0, 1.1, 0.1))
     plt.xlim((-1))
-    plt.xlabel(ylabel)
-    plt.ylabel("CDF")
-
-    plt.grid(True, which='both', alpha=0.3)
+    plt.xlabel(ylabel, labelpad=2)
+    plt.ylabel("CDF", labelpad=2)
+    # plt.grid(True, which='both', alpha=0.3)
     prepare_legend(legend_loc=4, alpha_num=0.5)
 
     writeout("%s"%outname)
@@ -228,8 +174,8 @@ def plot_scatter(outname, workloads, latency_data, throughput_data, systems_comp
 
 
 def color_box(bp):
-    color_list = [colorMap[0], colorMap[1], colorMap[3], colorMap[2]]
-    double_color_list = [colorMap[0], colorMap[0], colorMap[1], colorMap[1], colorMap[3],  colorMap[3], colorMap[2], colorMap[2]]
+    color_list = [colorMap[3], colorMap[2], colorMap[1], colorMap[0]]
+    double_color_list = [colorMap[3], colorMap[3], colorMap[2], colorMap[2], colorMap[1],  colorMap[1], colorMap[0], colorMap[0],]
     # Define the elements to color. You can also add medians, fliers and means
     elements = ['boxes','caps','whiskers']
     # Iterate over each of the elements changing the color
@@ -248,7 +194,7 @@ def plot_multiboxplot(data, outname, workloads, systems_compared, systems_labels
     fig, axes = plt.subplots(ncols=len(workloads)+1, sharey=True)
     fig.subplots_adjust(wspace=0)
     # fig.text(0.5, 0.04, "YCSB Workloads", ha='center')
-    fig.text(0.02, 0.5, "Request latency [ms]", va='center', rotation='vertical')
+    fig.text(-0.02, 0.5, "Request latency [ms]", va='center', rotation='vertical')
     for ax, name in zip(axes, workloads):
         # whis from 5th to 99th precentile
         bp = ax.boxplot(x=[data[name][item] for item in systems_compared], whis=[5, 99], sym=" ")
@@ -268,6 +214,7 @@ def plot_multiboxplot(data, outname, workloads, systems_compared, systems_labels
         # Hide these grid behind plot objects
         ax.set_axisbelow(True)
         ax.margins(0.05) # Optional
+        # ax.set_ylim(0, 250)
     i = 0
     for ax in axes:
         xaxis = ax.xaxis
@@ -275,6 +222,10 @@ def plot_multiboxplot(data, outname, workloads, systems_compared, systems_labels
         yaxis = ax.yaxis
         yaxis.set_ticks_position('none')
         ax.set(xticklabels='')
+        str_ylabels = []
+        for y_tick in ax.get_yticks():
+            str_ylabels.append(str(int(y_tick)))
+        ax.set_yticklabels(str_ylabels)
         # if i == len(workloads):
         #     # ax.yaxis.set_tick_params(direction='in')
         #     ax.get_yaxis().set_tick_params(direction='out', color='white')
@@ -297,11 +248,16 @@ def plot_multiboxplot(data, outname, workloads, systems_compared, systems_labels
     ax2.margins(0.05)  # Optional
     ax2.yaxis.tick_right()
     ax2.yaxis.set_label_position("right")
+    # ax2.set_ylim(0, 300)
 
     xaxis = ax2.xaxis
     xaxis.set_ticks_position('none')
     yaxis = ax2.yaxis
     yaxis.set_ticks_position('none')
+    str_ylabels = []
+    for y_tick in ax2.get_yticks():
+        str_ylabels.append(str(int(y_tick)))
+    ax2.set_yticklabels(str_ylabels)
 
     # plt.ylim((0,50))
     # plt.xlim((-1,100))
@@ -314,11 +270,11 @@ def plot_multiboxplot(data, outname, workloads, systems_compared, systems_labels
     rc('legend', frameon=True)
     # legfont = fnt.FontProperties()
     # legfont.set_size('xx-small')
-    hA, = plt.plot([1, 1], colorMap[0], linewidth=0.8)
-    hB, = plt.plot([1, 1], colorMap[1], linewidth=0.8)
-    hC, = plt.plot([1, 1], colorMap[3], linewidth=0.8)
-    hD, = plt.plot([1, 1], colorMap[2], linewidth=0.8)
-    leg = plt.legend((hA, hB, hC, hD), (systems_compared),bbox_to_anchor=(1.2, 1.25), loc='upper right', ncol=2,
+    hA, = plt.plot([1, 1], colorMap[3], linewidth=0.8)
+    hB, = plt.plot([1, 1], colorMap[2], linewidth=0.8)
+    hC, = plt.plot([1, 1], colorMap[1], linewidth=0.8)
+    hD, = plt.plot([1, 1], colorMap[0], linewidth=0.8)
+    leg = plt.legend((hA, hB, hC, hD), (systems_compared),bbox_to_anchor=(2.0, 1.15), loc='upper right', ncol=4,
                      fancybox=True)
     leg.get_frame().set_alpha(0.0)
     hA.set_visible(False)

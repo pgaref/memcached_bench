@@ -34,11 +34,11 @@ bmap = brewer2mpl.get_map('Paired', 'Qualitative', 4)
 colors = bmap.hex_colors
 
 # ALL workloads
-workloads = ["A", "B", "C", "D", "E", "F"]
+workloads = ["A", "B", "C", "D", "F", "E"]
 systems_compared = ['YARN', 'YARN-Cgroups', 'MEDEA', 'MEDEA-Cgroups']
 
 # Global style configuration
-hatch_patterns = ["", "/", "\\", "x", ".", "o", "O"]
+hatch_patterns = ["", "......", "\\\\\\", "xxxxx", "/", "o", "O"]
 utils.set_rcs()
 
 
@@ -99,7 +99,9 @@ def grouped_bar(data):
     for cond in systems_compared:
         y_vals = data_map[cond]
         pos = [j - (1 - space) / 2. + i * width for j in range(1, len(categories) + 1)]
-        ax.bar(pos, y_vals, width=width, label=cond, color=get_colors()[len(colors)-i-1], hatch=hatch_patterns[i])
+        ax.bar(pos, y_vals, width=width, label=cond, color=get_colors()[len(colors)-i-1], hatch=hatch_patterns[i],
+               edgecolor='black', linewidth=0.05)
+
         i += 1
 
     indexes = np.arange(1, len(categories) + 1, 1)
@@ -107,12 +109,17 @@ def grouped_bar(data):
     print "Categories: ", categories
     ax.set_xticks(indexes)
     ax.set_xticklabels(workloads)
+    str_ylabels= []
+    for y_tick in  ax.get_yticks():
+        str_ylabels.append(str(int(y_tick)))
+    ax.set_yticklabels(str_ylabels)
     utils.plt.setp(utils.plt.xticks()[1], rotation=00)
-    ax.set_xlim(0, len(indexes)+1)
+    ax.set_xlim(0.4, len(indexes)+0.6)
 
     # Add the axis labels
-    ax.set_ylabel("Throughput [Kops/s]")
-    ax.set_xlabel("YCSB Workload")
+    ax.set_ylabel("Throughput [Kops/s]", labelpad=3)
+    ax.set_xlabel("YCSB Workload",   labelpad=3)
+
 
     # optimal_line_graph('100*( x*8 ) + '+str(cluster_size) + '+ 100', range(0, len(categories) + 1))
 
@@ -165,8 +172,8 @@ if __name__ == '__main__':
             fnames.append(path + "write-w"+workload+"-10R-sum.dat")
         print "Processing.. "+ str(fnames)
         file_parser(fnames, labels)
-    grouped_bar(data_map)
+    fix, ax = grouped_bar(data_map)
 
     utils.set_rcs()
-    utils.prepare_legend(legend_loc="upper right", alpha_num=0.8, legend_ncol=2,  bbox_to_anchor=(0.98, 1.26), frameOn=False)
+    utils.prepare_legend(legend_loc="upper right", alpha_num=0.9, legend_ncol=1,  bbox_to_anchor=(1.025, 1.02), frameOn=False)
     utils.writeout("%s" % outname)

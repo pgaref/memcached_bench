@@ -120,6 +120,8 @@ def file_parser(fnames, workload):
         print " 99th: %f" % (np.percentile(values, 99))
 
         values = utils.reject_outliers(np.array(values))
+
+        print " ===> 99th: %f" % (np.percentile(values, 99))
         add_values(values, workload, labels[i])
 
         i += 1

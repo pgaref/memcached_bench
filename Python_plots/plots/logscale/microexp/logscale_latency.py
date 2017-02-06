@@ -37,7 +37,7 @@ colors = bmap.mpl_colors
 
 files = ["CPLEX-off_stats.csv", "CPLEX-on_stats.csv", "GR-NODE_CAND_stats.csv", "GR-SERIAL_stats.csv", "GR-RANDOM_stats.csv"]
 labels = ["ILP-offline", "ILP-online", "Node Candidates", "Random"]
-labels_map={"CPLEX-on": "ILP-online", "CPLEX-off": "ILP-offline",
+labels_map={"CPLEX-on": "MEDEA", "CPLEX-off": "MEDEA-offline",
             "GR-NODE_CAND": "Node Candidates", "GR-RANDOM": "Popular Tags", "GR-SERIAL": "Aurora"}
 
 
@@ -47,6 +47,17 @@ linestyle_list = ['--', '-', ':', '-', '-.']
 
 # Global style configuration
 utils.set_rcs()
+
+
+def round_to_n(x, n):
+    " Round x to n significant figures "
+    return round(x, -int(np.floor(np.sign(x) * np.log10(abs(x)))) + n)
+
+def str_fmt(x, n=2):
+    " Format x into nice Latex rounding to n"
+    power = int(np.log10(round_to_n(x, 0)))
+    f_SF = round_to_n(x, n) * pow(10, -power)
+    return "$10^{}$".format(power)
 
 
 def latency_logscale(data):
@@ -79,7 +90,7 @@ def latency_logscale(data):
 
     # Add the axis labels
     ax.set_ylabel("Latency (ms)")
-    ax.set_xlabel("Number of Nodes")
+    ax.set_xlabel("Number of Nodes", )
 
     # Make Y axis logscale
     utils.plt.yscale('log', nonposy='clip')
@@ -89,6 +100,19 @@ def latency_logscale(data):
     utils.plt.tight_layout()
     # Create some space for the last marker
     utils.plt.xlim((0, x_vals[len(x_vals)-1]+10))
+
+    # str_ylabels = ['0.0', '0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0']
+    # ax.set_yticklabels(str_ylabels)
+    str_ylabels = []
+    for y_tick in ax.get_yticks():
+        str_ylabels.append(str(str_fmt(y_tick)))
+    ax.set_yticklabels(str_ylabels)
+
+
+    str_xlabels = []
+    for x_tick in ax.get_xticks():
+        str_xlabels.append(str(int(x_tick)))
+    ax.set_xticklabels(str_xlabels)
 
     return fig, ax
 
@@ -126,5 +150,5 @@ if __name__ == '__main__':
     fig, axes = latency_logscale(data)
     utils.set_rcs()
     utils.plt.grid(True, which='major', alpha=0.3)
-    utils.prepare_legend(legend_loc="upper left", legend_ncol=2, alpha_num=1.0, bbox_to_anchor=(0.03, 1.22))
+    utils.prepare_legend(legend_loc="upper left", legend_ncol=2, alpha_num=0.6, bbox_to_anchor=(0.02, 1.02), frameOn=False)
     utils.writeout("%s"%outname)
