@@ -36,7 +36,7 @@ colors = bmap.mpl_colors
 
 
 files = ["ILP-on_stats.csv", "ILP-2lvl_stats.csv"]
-labels_map={"ILP-on": "ILP-ALL", "ILP-2lvl": "MEDEA",
+labels_map={"ILP-on": "ILP ALL", "ILP-2lvl": "MEDEA",
             "GR-NODE_CAND": "Node Candidates", "GR-RANDOM": "Greedy", "GR-SERIAL": "Aurora"}
 
 
@@ -82,9 +82,18 @@ def scheduling_latency(data):
     ax.set_xlim(0, indexes[len(indexes)-1]+1)
 
     # Add the axis labels
-    ax.set_ylabel("Container scheduling Latency (ms)")
-    ax.set_xlabel("Percentage of Services")
+    ax.set_ylabel("Container scheduling Latency (ms)", labelpad=2)
+    ax.set_xlabel("Percentage of Services", labelpad=2)
+    str_ylabels = []
+    for y_tick in ax.get_yticks():
+        str_ylabels.append(str(int(y_tick)))
+    ax.set_yticklabels(str_ylabels)
 
+
+    str_xlabels = []
+    for x_tick in ax.get_xticks():
+        str_xlabels.append(str(int(x_tick)))
+    ax.set_xticklabels(str_xlabels)
     # Make Y axis logscale
     # utils.plt.yscale('log', nonposy='clip')
     # Add a legend
@@ -131,5 +140,5 @@ if __name__ == '__main__':
     fig, axes = scheduling_latency(data)
     utils.set_rcs()
     utils.plt.grid(True, which='major', alpha=0.3)
-    utils.prepare_legend(legend_loc="upper left", alpha_num=1.0)
+    utils.prepare_legend(legend_loc="upper left", alpha_num=1.0, bbox_to_anchor=(0.05, 0.95), frameOn=False)
     utils.writeout("%s"%outname)
