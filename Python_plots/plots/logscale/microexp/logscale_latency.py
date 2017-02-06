@@ -37,7 +37,7 @@ colors = bmap.mpl_colors
 
 files = ["CPLEX-off_stats.csv", "CPLEX-on_stats.csv", "GR-NODE_CAND_stats.csv", "GR-SERIAL_stats.csv", "GR-RANDOM_stats.csv"]
 labels = ["ILP-offline", "ILP-online", "Node Candidates", "Random"]
-labels_map={"CPLEX-on": "MEDEA", "CPLEX-off": "MEDEA-offline",
+labels_map={"CPLEX-on": "MEDEA", "CPLEX-off": "MEDEA offline",
             "GR-NODE_CAND": "Node Candidates", "GR-RANDOM": "Popular Tags", "GR-SERIAL": "Aurora"}
 
 
