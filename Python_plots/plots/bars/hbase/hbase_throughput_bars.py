@@ -98,8 +98,8 @@ def grouped_bar(data):
     for cond in systems_compared:
         y_vals = data_map[cond]
         pos = [j - (1 - space) / 2. + i * width for j in range(1, len(categories) + 1)]
-        ax.bar(pos, y_vals, width=width, label=cond, color=get_colors()[len(utils.get_bw_colors())-i-1], hatch=utils.hatch_patterns[i],
-               edgecolor='black', linewidth=0.05)
+        ax.bar(pos, y_vals, width=width, label=cond, color=utils.get_bw_bars_colors()[len(utils.get_bw_bars_colors())-1-i],
+               hatch=utils.bar_hatch_patterns[len(utils.get_bw_bars_colors())-1-i], edgecolor='black', linewidth=0.05)
 
         i += 1
 
@@ -116,7 +116,7 @@ def grouped_bar(data):
     ax.set_xlim(0.4, len(indexes)+0.6)
 
     # Add the axis labels
-    ax.set_ylabel("Throughput [Kops/s]", labelpad=3)
+    ax.set_ylabel("Throughput (Kops/s)", labelpad=3)
     ax.set_xlabel("YCSB Workload",   labelpad=3)
 
 

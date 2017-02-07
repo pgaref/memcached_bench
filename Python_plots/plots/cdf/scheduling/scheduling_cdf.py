@@ -131,11 +131,9 @@ if __name__ == '__main__':
       outname = "two_level_scheduling_cdf"
 
     fpaths = ['../../../data/two_level/hadoop-pg1712-resourcemanager-wombat30-batch.log',
-              '../../../data/two_level/hadoop-pg1712-resourcemanager-wombat30-service.log',
-              '../../../data/two_level/hadoop-pg1712-resourcemanager-wombat30-service2.log']
+              '../../../data/two_level/hadoop-pg1712-resourcemanager-wombat30-service.log']
     labels = ['Batch Only',
-              'Batch \& Service',
-              'Batch \& Service2']
+              'Batch\& Service']
     for i in range(0, len(sys.argv) - 1, 2):
       fpaths.append(sys.argv[1 + i])
       labels.append(sys.argv[2 + i])
@@ -147,4 +145,4 @@ if __name__ == '__main__':
     print "Processing.. " + str(fpaths)
     file_parser(fpaths, labels)
     utils.plot_cdf(outname, ylabel="Task responce time [sec]")
-    utils.plot_boxplot(data, "two_level_scheduling_boxplot", labels, labels)
+    utils.plot_boxplot(data, "two_level_scheduling_boxplot", labels, labels,  ylabel="Task responce time [sec]")

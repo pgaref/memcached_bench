@@ -55,6 +55,15 @@ def get_bw_colors():
         # [1, 1, 0.9]               # light yellow
     ])
 
+bar_hatch_patterns = [ "\\\\\\", "", "xxxxx", "......", "//////", "o", "O"]
+def get_bw_bars_colors():
+    return np.array([
+        [0.4, 0.4, 0.4],          # very dark gray
+        [0.1, 0.1, 0.1],          # black
+        [0.7, 0.7, 0.7],          # dark gray
+        [0.9, 0.9, 0.9],          # light gray
+    ])
+
 paperMode = True
 
 
