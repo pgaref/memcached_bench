@@ -33,7 +33,6 @@ labels = ["ILP-offline", "ILP-online", "Node Candidates", "Random"]
 labels_map={"CPLEX-on": "ILP-online", "CPLEX-off": "ILP-offline",
             "GR-NODE_CAND": "Node Candidates", "GR-RANDOM": "Greedy", "GR-SERIAL": "Aurora"}
 
-hatch_patterns = ["", "/", "\\", "x", ".", "o", "O"]
 cluster_size = 100
 
 # Global style configuration
@@ -67,7 +66,7 @@ def color_bars(axes, colors):
         # hatch marks int he dark color
         p.set_color(light_color)
         p.set_edgecolor(dark_color)
-        p.set_hatch(hatch_patterns[i % len(labels)])
+        p.set_hatch(utils.hatch_patterns[i % len(labels)])
         i += 1
 
 
@@ -120,7 +119,7 @@ def grouped_bar(data):
         pos = [j - (1 - space) / 2. + i * width for j in range(1, len(categories) + 1)]
         if labels_map.has_key(str(cond).strip()):
             ax.bar(pos, y_vals, width=width, label=labels_map[str(cond).strip()], color=get_colors()[i],
-                   edgecolor=get_colors()[i+1],hatch=hatch_patterns[i])
+                   edgecolor=get_colors()[i+1],hatch=utils.hatch_patterns[i])
             i +=1
 
     indexes = np.arange(1, len(categories)+1, 1)
@@ -132,8 +131,8 @@ def grouped_bar(data):
     ax.set_xlim(0,11)
 
     # Add the axis labels
-    ax.set_ylabel("Placement Efficiency [\%]")
-    ax.set_xlabel("Services Running [Cluster \%]")
+    ax.set_ylabel("Placement Efficiency (\%)")
+    ax.set_xlabel("Services Running (Cluster \%)")
 
     # optimal_line_graph('100*( x*8 ) + '+str(cluster_size) + '+ 100', range(0, len(categories) + 1))
 
@@ -141,6 +140,9 @@ def grouped_bar(data):
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles[::-1], labels[::-1])
     utils.plt.tight_layout()
+
+    for axis in ['top', 'bottom', 'left', 'right']:
+        ax.spines[axis].set_linewidth(0.1)
 
     return fig, ax
 

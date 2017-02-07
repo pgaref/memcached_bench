@@ -32,9 +32,28 @@ import numpy as np
 import brewer2mpl
 
 # brewer2mpl.get_map args: set name  set type  number of colors
-bmap = brewer2mpl.get_map('Paired', 'Qualitative', 4)
-colorMap = bmap.hex_colors
+# bmap = brewer2mpl.get_map('Paired', 'Qualitative', 4)
+# colorMap = bmap.hex_colors
 
+color_list = ['red', 'green', 'blue', 'c', 'm', 'limegreen', 'yellow', '0.65', 'darkorange', '0.35', 'black']
+micro_color_list = ['blue', 'red', 'green', 'c', 'm', 'limegreen', 'yellow', '0.65', 'darkorange', '0.35', 'black']
+# bw_color_list = ['0.2', '0.7']
+# bw_color_list = ['0.0', '0.5', '0.9']
+marker_list = ['o', '^', 'x', 'h', 'd', 's', '+', '*']
+linestyle_list = ['--', '-.', '-']
+hatch_patterns = ["", "\\\\\\", "xxxxx", "......", "//////", "o", "O"]
+
+
+def get_bw_colors():
+    return np.array([
+        [0.1, 0.1, 0.1],          # black
+        [0.4, 0.4, 0.4],          # very dark gray
+        [0.7, 0.7, 0.7],          # dark gray
+        [0.9, 0.9, 0.9],          # light gray
+        [1, 1, 1],            # white
+        # [0.984375, 0.7265625, 0], # dark yellow
+        # [1, 1, 0.9]               # light yellow
+    ])
 
 paperMode = True
 
@@ -92,11 +111,11 @@ paper_figsize_default = (3.33, 2.22)  # 11, 6
 
 def set_paper_rcs():
   rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica']})
-  rc('font', size=12)
+  rc('font', size=8)
   rc('text', usetex=True)
   # rc('text.latex', preamble=['\usepackage{mathptmx,sans-serif}'])
   rc('legend', fontsize=6)
-  rc('figure', figsize=paper_figsize_default)
+  rc('figure', figsize=paper_figsize_microexp_bars)
 #  rc('figure.subplot', left=0.10, top=0.90, bottom=0.12, right=0.95)
   rc('axes', linewidth=0.5)
   #   rc('axes', linewidth=0.2)
@@ -110,8 +129,8 @@ def set_rcs( ):
 
 
 def plot_cdf(outname, ylabel):
-    plt.ylim((0,1))
-    plt.yticks(np.arange(0, 1.1, 0.1))
+    plt.ylim((0,1.01))
+    plt.yticks(np.arange(0, 1.1, 0.2))
     plt.xlim((-1))
     plt.xlabel(ylabel, labelpad=2)
     plt.ylabel("CDF", labelpad=2)
@@ -132,8 +151,8 @@ def plot_scatter(outname, workloads, latency_data, throughput_data, systems_comp
 
     for name in workloads:
 
-        plt.xlabel("Latency 99th percentile [ms]", fontsize=matplotlib.rcParams['font.size'])
-        plt.ylabel("Throughput [Kops/s]", fontsize=matplotlib.rcParams['font.size'])
+        plt.xlabel("Latency 99th percentile (ms)", fontsize=matplotlib.rcParams['font.size'])
+        plt.ylabel("Throughput (Kops/s)", fontsize=matplotlib.rcParams['font.size'])
         props = dict(alpha=0.5, edgecolors='none')
 
         # print "Latency Len: " + str(len(latency_data[name]['YARN']))

@@ -27,7 +27,6 @@ import os
 import numpy as np
 import pandas as pd
 import plots.utils as utils
-import brewer2mpl
 
 files = ["CPLEX-off_stats.csv", "CPLEX-on_stats.csv", "GR-NODE_CAND_stats.csv", "GR-SERIAL_stats.csv", "GR-RANDOM_stats.csv"]
 # files = ["CPLEX-off_stats.csv", "CPLEX-on_stats.csv", "GR-SERIAL_stats.csv", "GR-RANDOM_stats.csv"]
@@ -35,26 +34,11 @@ labels = ["ILP-offline", "ILP-online", "Node Candidates", "Random"]
 labels_map={"CPLEX-on": "MEDEA", "CPLEX-off": "MEDEA offline",
             "GR-NODE_CAND": "Node Candidates", "GR-RANDOM": "Popular Tags", "GR-SERIAL": "Aurora"}
 
-colors_div = ['tomato', 'plum', 'dimgrey']
-bmap = brewer2mpl.get_map('Paired', 'Qualitative',4)
-colors = bmap.mpl_colors
-
-hatch_patterns = ["\\\\\\\\", "xxxxx", "", "......", "//////", "o", "O"]
 cluster_size = 100
 
 # Global style configuration
 utils.set_rcs()
 
-
-def get_colors():
-    return np.array([
-        [0.1, 0.1, 0.1],          # black
-        [0.4, 0.4, 0.4],          # very dark gray
-        [0.7, 0.7, 0.7],          # dark gray
-        [0.9, 0.9, 0.9],          # light gray
-        [0.984375, 0.7265625, 0], # dark yellow
-        [1, 1, 0.9]               # light yellow
-    ])
 
 
 def color_bars(axes, colors):
@@ -73,7 +57,7 @@ def color_bars(axes, colors):
         # hatch marks int he dark color
         p.set_color(light_color)
         p.set_edgecolor(dark_color)
-        p.set_hatch(hatch_patterns[i % len(labels)])
+        p.set_hatch(utils.hatch_patterns[i % len(labels)])
         i += 1
 
 
@@ -117,12 +101,8 @@ def grouped_bar(data):
         y_vals = data[data[:, 0] == cond][:, 2].astype(np.float)
         pos = [j - (1 - space) / 2. + i * width for j in range(1, len(categories) + 1)]
         if labels_map.has_key(str(cond).strip()):
-            if i < 2:
-                ax.bar(pos, y_vals, width=width, label=labels_map[str(cond).strip()], color=colors[len(colors)-3-i],
-                       hatch=hatch_patterns[i], edgecolor='black', linewidth=0.05)
-            else:
-                ax.bar(pos, y_vals, width=width, label=labels_map[str(cond).strip()], color=colors_div[i-2],
-                       hatch=hatch_patterns[i], edgecolor='black', linewidth=0.05)
+            ax.bar(pos, y_vals, width=width, label=labels_map[str(cond).strip()], color=utils.get_bw_colors()[i],
+                       hatch=utils.hatch_patterns[i], edgecolor='black', linewidth=0.05)
             i +=1
 
     indexes = np.arange(1, len(categories)+1, 1)
@@ -134,8 +114,8 @@ def grouped_bar(data):
     ax.set_xlim(0,11)
 
     # Add the axis labels
-    ax.set_ylabel("Least loaded node [\%]", labelpad=2)
-    ax.set_xlabel("Services running [cluster \%]", labelpad=2)
+    ax.set_ylabel("Least loaded node (\%)", labelpad=2)
+    ax.set_xlabel("Services running (cluster \%)", labelpad=2)
 
     str_ylabels = []
     for y_tick in ax.get_yticks():
@@ -148,6 +128,10 @@ def grouped_bar(data):
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles[::-1], labels[::-1])
     utils.plt.tight_layout()
+
+    for axis in ['top', 'bottom', 'left', 'right']:
+        ax.spines[axis].set_linewidth(0.1)
+
 
     return fig, ax
 
