@@ -31,9 +31,9 @@ import plots.utils as utils
 # Global style configuration
 utils.set_rcs()
 
-colors = ['r', 'g', 'b', 'c', 'm']
-markers = ['o', '^', 'v', 'h']
-linestyle_list = ['--', '-.', '-', ':']
+# colors = ['r', 'g', 'b', 'c', 'm']
+# markers = ['o', '^', 'v', 'h']
+# linestyle_list = ['--', '-.', '-', ':']
 
 # workloads = ["A", "B", "C", "D", "E", "F"]
 systems_compared = ['YARN', 'MEDEA (intra-only)', 'MEDEA']
@@ -59,17 +59,19 @@ def cdf(data, label_count, label):
     cdf = np.cumsum(counts)
 
     # Plot the cdf
-    ax.plot(bin_edges[0:-1], cdf, linewidth=1.5, linestyle=linestyle_list[label_count],
-                   label=systems_labels[label_count], color=colors[label_count])
+    ax.plot(bin_edges[0:-1], cdf, linewidth=0.7, linestyle=utils.linestyle_list[label_count],
+                   label=systems_labels[label_count], color=utils.color_list[label_count])
 
     str_ylabels = ['0.0', '0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0']
     ax.set_yticklabels(str_ylabels)
 
     str_xlabels = ['0']
     for x_tick in ax.get_xticks():
-        print x_tick
         str_xlabels.append(str(int(x_tick)))
     ax.set_xticklabels(str_xlabels)
+
+    for axis in ['top','bottom','left','right']:
+        ax.spines[axis].set_linewidth(0.1)
 
 
 
@@ -156,8 +158,8 @@ if __name__ == '__main__':
     fpaths = []
     labels = []
     for i in range(0, len(sys.argv) - 1, 2):
-      fpaths.append(sys.argv[1 + i])
-      labels.append(sys.argv[2 + i])
+        fpaths.append(sys.argv[1 + i])
+        labels.append(sys.argv[2 + i])
 
     print 'Paths given: {}'.format(" | ".join(fname for fname in fpaths))
     print 'Labels given: {}'.format(" | ".join(label for label in labels))
@@ -167,4 +169,4 @@ if __name__ == '__main__':
         fnames.append(path + "trendingHashTags.log")
     print "Processing.. "+ str(fnames)
     file_parser(fnames)
-    utils.plot_cdf(outname, ylabel="Request latency [ms]")
+    utils.plot_cdf(outname, ylabel="Request latency (ms)")
