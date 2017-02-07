@@ -30,20 +30,19 @@ import brewer2mpl
 
 # brewer2mpl.get_map args: set name  set type  number of colors
 # bmap = brewer2mpl.get_map('RdBu', 'Diverging', 5)
-bmap = brewer2mpl.get_map('Paired', 'Qualitative', 4)
-colors = bmap.hex_colors
+# bmap = brewer2mpl.get_map('Paired', 'Qualitative', 4)
+# colors = bmap.hex_colors
 
 # ALL workloads
 workloads = ["A", "B", "C", "D", "F", "E"]
 systems_compared = ['YARN', 'YARN-Cgroups', 'MEDEA', 'MEDEA-Cgroups']
 
 # Global style configuration
-hatch_patterns = ["", "......", "\\\\\\", "xxxxx", "/", "o", "O"]
 utils.set_rcs()
 
 
 def get_colors():
-    return colors
+    return utils.get_bw_colors()
 
 
 def color_bars(axes, colors):
@@ -62,7 +61,7 @@ def color_bars(axes, colors):
         # hatch marks int he dark color
         p.set_color(light_color)
         p.set_edgecolor(dark_color)
-        p.set_hatch(hatch_patterns[i % len(labels)])
+        p.set_hatch(utils.hatch_patterns[i % len(labels)])
         i += 1
 
 
@@ -99,7 +98,7 @@ def grouped_bar(data):
     for cond in systems_compared:
         y_vals = data_map[cond]
         pos = [j - (1 - space) / 2. + i * width for j in range(1, len(categories) + 1)]
-        ax.bar(pos, y_vals, width=width, label=cond, color=get_colors()[len(colors)-i-1], hatch=hatch_patterns[i],
+        ax.bar(pos, y_vals, width=width, label=cond, color=get_colors()[len(utils.get_bw_colors())-i-1], hatch=utils.hatch_patterns[i],
                edgecolor='black', linewidth=0.05)
 
         i += 1
