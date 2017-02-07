@@ -103,7 +103,7 @@ paper_figsize_medium_square = (2, 2)
 #paper_figsize_medium = (1.66, 1.1)
 paper_figsize_large = (3, 2)
 paper_figsize_storm_cdf = (2.2, 1.22) # font=6, 5
-paper_figsize_latency_boxplot = (3.33, 2.22)  # 12, 6
+paper_figsize_latency_boxplot = (3.33, 2.22)  # 12, 6.5
 paper_figsize_logscale = (3.33, 2)  # 8, 6
 paper_figsize_microexp_bars = (3.33, 2)  # 8, 6
 paper_figsize_throughput_bars = (3.33, 2.22)  # 11, 6
@@ -111,11 +111,11 @@ paper_figsize_default = (3.33, 2.22)  # 11, 6
 
 def set_paper_rcs():
   rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica']})
-  rc('font', size=8)
+  rc('font', size=12)
   rc('text', usetex=True)
   # rc('text.latex', preamble=['\usepackage{mathptmx,sans-serif}'])
-  rc('legend', fontsize=6)
-  rc('figure', figsize=paper_figsize_microexp_bars)
+  rc('legend', fontsize=6.5)
+  rc('figure', figsize=paper_figsize_latency_boxplot)
 #  rc('figure.subplot', left=0.10, top=0.90, bottom=0.12, right=0.95)
   rc('axes', linewidth=0.5)
   #   rc('axes', linewidth=0.2)
@@ -193,8 +193,8 @@ def plot_scatter(outname, workloads, latency_data, throughput_data, systems_comp
 
 
 def color_box(bp):
-    color_list = [colorMap[3], colorMap[2], colorMap[1], colorMap[0]]
-    double_color_list = [colorMap[3], colorMap[3], colorMap[2], colorMap[2], colorMap[1],  colorMap[1], colorMap[0], colorMap[0],]
+    color_list = [get_bw_colors()[3], get_bw_colors()[2], get_bw_colors()[0], get_bw_colors()[1]]
+    double_color_list = [get_bw_colors()[0], get_bw_colors()[0], get_bw_colors()[1], get_bw_colors()[1], get_bw_colors()[0],  get_bw_colors()[0], get_bw_colors()[1], get_bw_colors()[1],]
     # Define the elements to color. You can also add medians, fliers and means
     elements = ['boxes','caps','whiskers']
     # Iterate over each of the elements changing the color
@@ -211,16 +211,16 @@ def color_box(bp):
 
 def plot_multiboxplot(data, outname, workloads, systems_compared, systems_labels):
     fig, axes = plt.subplots(ncols=len(workloads)+1, sharey=True)
-    fig.subplots_adjust(wspace=0)
+    fig.subplots_adjust(wspace=0.08)
     # fig.text(0.5, 0.04, "YCSB Workloads", ha='center')
-    fig.text(-0.02, 0.5, "Request latency [ms]", va='center', rotation='vertical')
+    fig.text(-0.02, 0.5, "Request latency (ms)", va='center', rotation='vertical')
     for ax, name in zip(axes, workloads):
         # whis from 5th to 99th precentile
-        bp = ax.boxplot(x=[data[name][item] for item in systems_compared], whis=[5, 99], sym=" ")
+        bp = ax.boxplot(widths=0.7, patch_artist=True, x=[data[name][item] for item in systems_compared], whis=[5, 99], sym=" ")
         # ax.set_yscale('log')
         plt.setp(bp['boxes'], linewidth=0.6)
         plt.setp(bp['medians'], linewidth=0.6)
-        plt.setp(bp['whiskers'], linewidth=0.7)
+        plt.setp(bp['whiskers'], linewidth=1)
         color_box(bp)
         xtickNames = ax.set(xticklabels='')
         # plt.setp(xtickNames, rotation=90, fontsize=textsize/2)
@@ -228,18 +228,30 @@ def plot_multiboxplot(data, outname, workloads, systems_compared, systems_labels
         plt.setp(workloadXtick)
         # # Add a horizontal grid to the plot, but make it very light in color
         # # so we can use it for reading data values but not be distracting
-        ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey',
-               alpha=0.5)
+        # ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey',
+        #        alpha=0.5)
         # Hide these grid behind plot objects
         ax.set_axisbelow(True)
         ax.margins(0.05) # Optional
-        # ax.set_ylim(0, 250)
+        whiskers = bp['whiskers']
+        wi = 0
+        for w in whiskers:
+            if wi < 2:
+                w.set_linestyle(':')
+            elif wi < 4:
+                w.set_linestyle('-.')
+            elif wi < 6:
+                w.set_linestyle('-')
+            else:
+                w.set_linestyle('--')
+            wi += 1
+        ax.set_ylim(0)
     i = 0
     for ax in axes:
         xaxis = ax.xaxis
         xaxis.set_ticks_position('none')
         yaxis = ax.yaxis
-        yaxis.set_ticks_position('none')
+        yaxis.set_tick_params(width=0.3, size=2)
         ax.set(xticklabels='')
         str_ylabels = []
         for y_tick in ax.get_yticks():
@@ -248,35 +260,53 @@ def plot_multiboxplot(data, outname, workloads, systems_compared, systems_labels
         # if i == len(workloads):
         #     # ax.yaxis.set_tick_params(direction='in')
         #     ax.get_yaxis().set_tick_params(direction='out', color='white')
+        for axis in ['top', 'bottom', 'left', 'right']:
+            ax.spines[axis].set_linewidth(0.1)
         i += 1
     # WorkloadE on a separate plot ?
     # now, the second axes that shares the x-axis with the ax1
-    ax2 = fig.add_subplot(1, 8, 8)
-    bp = ax2.boxplot(x=[data["E"][item] for item in systems_compared], whis=[5, 99], sym=" ")
+    # ax2 = fig.add_subplot(1, 8, 8)
+    bp = ax.boxplot(widths=0.7, patch_artist=True, x=[data[name][item] for item in systems_compared], whis=[5, 99], sym=" ")
     # ax2.set_yscale('log')
     plt.setp(bp['boxes'], linewidth=0.6)
     plt.setp(bp['medians'], linewidth=0.6)
-    plt.setp(bp['whiskers'], linewidth=0.7)
+    plt.setp(bp['whiskers'], linewidth=1.0)
     color_box(bp)
-    ax2.set(xticklabels='')
-    workloadXtick = ax2.set(xlabel='E')
+    ax.set(xticklabels='')
+    workloadXtick = ax.set(xlabel='E')
     plt.setp(workloadXtick)
-    ax2.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5)
+    # ax2.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5)
     # Hide these grid behind plot objects
-    ax2.set_axisbelow(True)
-    ax2.margins(0.05)  # Optional
-    ax2.yaxis.tick_right()
-    ax2.yaxis.set_label_position("right")
-    # ax2.set_ylim(0, 300)
+    ax.set_axisbelow(True)
+    ax.margins(0.05)  # Optional
+    ax.yaxis.tick_right()
+    ax.yaxis.set_label_position("right")
+    ax.set_ylim(0)
 
-    xaxis = ax2.xaxis
+    xaxis = ax.xaxis
     xaxis.set_ticks_position('none')
-    yaxis = ax2.yaxis
-    yaxis.set_ticks_position('none')
+    yaxis = ax.yaxis
+    yaxis.set_tick_params(width=0.3, size=2)
+    # yaxis.set_ticks_position('none')
     str_ylabels = []
-    for y_tick in ax2.get_yticks():
+    for y_tick in ax.get_yticks():
         str_ylabels.append(str(int(y_tick)))
-    ax2.set_yticklabels(str_ylabels)
+    ax.set_yticklabels(str_ylabels)
+    for axis in ['top','bottom','left','right']:
+        ax.spines[axis].set_linewidth(0.1)
+
+    whiskers = bp['whiskers']
+    wi = 0
+    for w in whiskers:
+        if wi < 2:
+            w.set_linestyle(':')
+        elif wi < 4:
+            w.set_linestyle('-.')
+        elif wi < 6:
+            w.set_linestyle('-')
+        else:
+            w.set_linestyle('--')
+        wi += 1
 
     # plt.ylim((0,50))
     # plt.xlim((-1,100))
@@ -289,11 +319,11 @@ def plot_multiboxplot(data, outname, workloads, systems_compared, systems_labels
     rc('legend', frameon=True)
     # legfont = fnt.FontProperties()
     # legfont.set_size('xx-small')
-    hA, = plt.plot([1, 1], colorMap[3], linewidth=0.8)
-    hB, = plt.plot([1, 1], colorMap[2], linewidth=0.8)
-    hC, = plt.plot([1, 1], colorMap[1], linewidth=0.8)
-    hD, = plt.plot([1, 1], colorMap[0], linewidth=0.8)
-    leg = plt.legend((hA, hB, hC, hD), (systems_compared),bbox_to_anchor=(2.0, 1.15), loc='upper right', ncol=4,
+    hA, = plt.plot([1, 1], color=get_bw_colors()[0], linestyle=':', linewidth=0.8)
+    hB, = plt.plot([1, 1], color=get_bw_colors()[1], linestyle='-.', linewidth=0.8)
+    hC, = plt.plot([1, 1], color=get_bw_colors()[0], linewidth=0.8)
+    hD, = plt.plot([1, 1], color=get_bw_colors()[1], linestyle='--', linewidth=0.8)
+    leg = plt.legend((hA, hB, hC, hD), (systems_compared),bbox_to_anchor=(1.98, 1.15), loc='upper right', ncol=4,
                      fancybox=True)
     leg.get_frame().set_alpha(0.0)
     hA.set_visible(False)
@@ -303,6 +333,8 @@ def plot_multiboxplot(data, outname, workloads, systems_compared, systems_labels
 
     # Global style configuration
     set_rcs()
+    for axis in ['top','bottom','left','right']:
+        ax.spines[axis].set_linewidth(0.1)
     # plt.rcParams['axes.linewidth'] = 5  # set the value globally
     print "Done with plots"
     writeout("%s"%outname)
