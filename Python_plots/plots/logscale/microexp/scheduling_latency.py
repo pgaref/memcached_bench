@@ -31,8 +31,8 @@ import brewer2mpl
 
 # brewer2mpl.get_map args: set name  set type  number of colors
 # bmap = brewer2mpl.get_map('RdBu', 'Diverging', 5)
-bmap = brewer2mpl.get_map('Set1', 'Qualitative', 5)
-colors = bmap.mpl_colors
+# bmap = brewer2mpl.get_map('Set1', 'Qualitative', 5)
+# colors = bmap.mpl_colors
 
 
 files = ["ILP-on_stats.csv", "ILP-2lvl_stats.csv"]
@@ -41,8 +41,8 @@ labels_map={"ILP-on": "ILP ALL", "ILP-2lvl": "MEDEA",
 
 
 # colors = ['r', 'g', 'b', 'black', 'c', 'm']
-markers = ['o', '^', 'v', 'h', 'x']
-linestyle_list = ['--', '-', ':', '-', '-.']
+# markers = ['o', '^', 'v', 'h', 'x']
+# linestyle_list = ['--', '-', ':', '-', '-.']
 
 # Global style configuration
 utils.set_rcs()
@@ -66,9 +66,9 @@ def scheduling_latency(data):
         x_vals = data[data[:, 0] == cond][:, 1].astype(np.int)
 
         if labels_map.has_key(str(cond).strip()):
-            ax.plot(x_vals, y_vals, label=labels_map[str(cond).strip()], color=colors[i], linestyle=linestyle_list[i],
-                    marker=markers[i], linewidth=1)
-            i +=1
+            ax.plot(x_vals, y_vals, label=labels_map[str(cond).strip()], color=utils.color_list[i], linestyle=utils.linestyle_list[i],
+                    marker=utils.marker_list[i], linewidth=1)
+            i +=2
 
     indexes = []
     for c in  categories:
@@ -82,7 +82,7 @@ def scheduling_latency(data):
     ax.set_xlim(0, indexes[len(indexes)-1]+1)
 
     # Add the axis labels
-    ax.set_ylabel("Scheduling latency [ms]", labelpad=2)
+    ax.set_ylabel("Scheduling latency (ms)", labelpad=2)
     ax.set_xlabel("Percentage of services", labelpad=2)
     str_ylabels = []
     for y_tick in ax.get_yticks():
