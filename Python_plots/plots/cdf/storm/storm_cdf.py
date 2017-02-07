@@ -62,7 +62,7 @@ def cdf(data, label_count, label):
     ax.plot(bin_edges[0:-1], cdf, linewidth=0.7, linestyle=utils.linestyle_list[label_count],
                    label=systems_labels[label_count], color=utils.color_list[label_count])
 
-    str_ylabels = ['0.0', '0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0']
+    str_ylabels = ['0.0', '0.2', '0.4', '0.6', '0.8', '1.0']
     ax.set_yticklabels(str_ylabels)
 
     str_xlabels = ['0']
