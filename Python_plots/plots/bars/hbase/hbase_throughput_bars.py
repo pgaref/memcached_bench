@@ -127,6 +127,9 @@ def grouped_bar(data):
     ax.legend(handles[::-1], labels[::-1])
     utils.plt.tight_layout()
 
+    for axis in ['top', 'bottom', 'left', 'right']:
+        ax.spines[axis].set_linewidth(0.1)
+
     return fig, ax
 
 
