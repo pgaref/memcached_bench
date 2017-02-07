@@ -99,6 +99,9 @@ def scheduling_latency(data):
     # Create some space for the last marker
     # utils.plt.xlim((0, x_vals[len(x_vals)-1]+10))
 
+    for axis in ['top','bottom','left','right']:
+        ax.spines[axis].set_linewidth(0.1)
+
     return fig, ax
 
 
