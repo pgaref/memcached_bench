@@ -30,9 +30,9 @@ import plots.utils as utils
 import brewer2mpl
 
 # brewer2mpl.get_map args: set name  set type  number of colors
-colors_div = ['tomato', 'plum', 'dimgrey']
-bmap = brewer2mpl.get_map('Paired', 'Qualitative',4)
-colors = bmap.mpl_colors
+# colors_div = ['tomato', 'plum', 'dimgrey']
+# bmap = brewer2mpl.get_map('Paired', 'Qualitative',4)
+# colors = bmap.mpl_colors
 
 
 files = ["CPLEX-off_stats.csv", "CPLEX-on_stats.csv", "GR-NODE_CAND_stats.csv", "GR-SERIAL_stats.csv", "GR-RANDOM_stats.csv"]
@@ -80,12 +80,8 @@ def latency_logscale(data):
         y_vals = data[data[:, 0] == cond][:, 2].astype(np.float)
         x_vals = data[data[:, 0] == cond][:, 1].astype(np.int)
         if labels_map.has_key(str(cond).strip()):
-            if i < 2:
-                ax.plot(x_vals, y_vals, label=labels_map[str(cond).strip()], color=colors[len(colors)-3-i], linestyle=linestyle_list[i],
-                        marker=markers[i], linewidth=1)
-            else:
-                ax.plot(x_vals, y_vals, label=labels_map[str(cond).strip()], color=colors_div[i-2],
-                        linestyle=linestyle_list[i], marker=markers[i], linewidth=1)
+            ax.plot(x_vals, y_vals, label=labels_map[str(cond).strip()], color=utils.micro_color_list[i], linestyle=linestyle_list[i],
+                    marker=markers[i], linewidth=1)
             i +=1
 
     indexes = range(1, len(categories) + 1)
@@ -93,7 +89,7 @@ def latency_logscale(data):
     print "Categories: ", categories
 
     # Add the axis labels
-    ax.set_ylabel("Latency ms)")
+    ax.set_ylabel("Latency (ms - logscale)")
     ax.set_xlabel("Number of Nodes", )
 
     # Make Y axis logscale
@@ -117,6 +113,9 @@ def latency_logscale(data):
     for x_tick in ax.get_xticks():
         str_xlabels.append(str(int(x_tick)))
     ax.set_xticklabels(str_xlabels)
+
+    for axis in ['top', 'bottom', 'left', 'right']:
+        ax.spines[axis].set_linewidth(0.1)
 
     return fig, ax
 
