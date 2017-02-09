@@ -112,7 +112,7 @@ paper_figsize_medium_square = (2, 2)
 #paper_figsize_medium = (1.66, 1.1)
 paper_figsize_large = (3, 2)
 paper_figsize_storm_cdf = (2.2, 1.22) # font=6, 5
-paper_figsize_latency_boxplot = (3.33, 2.22)  # 12, 6.5
+paper_figsize_latency_boxplot = (3.33, 2.22)  # 12, 6.3
 paper_figsize_logscale = (3.33, 2)  # 8, 6
 paper_figsize_microexp_bars = (3.33, 2)  # 8, 6
 paper_figsize_throughput_bars = (3.33, 2.22)  # 11, 6
@@ -123,7 +123,7 @@ def set_paper_rcs():
   rc('font', size=12)
   rc('text', usetex=True)
   # rc('text.latex', preamble=['\usepackage{mathptmx,sans-serif}'])
-  rc('legend', fontsize=6.5)
+  rc('legend', fontsize=6.3)
   rc('figure', figsize=paper_figsize_latency_boxplot)
 #  rc('figure.subplot', left=0.10, top=0.90, bottom=0.12, right=0.95)
   rc('axes', linewidth=0.5)
@@ -222,7 +222,7 @@ def plot_multiboxplot(data, outname, workloads, systems_compared, systems_labels
     fig, axes = plt.subplots(ncols=len(workloads)+1, sharey=True)
     fig.subplots_adjust(wspace=0.08)
     # fig.text(0.5, 0.04, "YCSB Workloads", ha='center')
-    fig.text(-0.02, 0.5, "Request latency (ms)", va='center', rotation='vertical')
+    fig.text(-0.03, 0.5, "Request latency (ms)", va='center', rotation='vertical')
     for ax, name in zip(axes, workloads):
         # whis from 5th to 99th precentile
         bp = ax.boxplot(widths=0.7, patch_artist=True, x=[data[name][item] for item in systems_compared], whis=[5, 99], sym=" ")
@@ -254,7 +254,7 @@ def plot_multiboxplot(data, outname, workloads, systems_compared, systems_labels
             else:
                 w.set_linestyle('--')
             wi += 1
-        ax.set_ylim(0)
+        ax.set_ylim(0, 400)
     i = 0
     for ax in axes:
         xaxis = ax.xaxis
@@ -274,35 +274,35 @@ def plot_multiboxplot(data, outname, workloads, systems_compared, systems_labels
         i += 1
     # WorkloadE on a separate plot ?
     # now, the second axes that shares the x-axis with the ax1
-    # ax2 = fig.add_subplot(1, 8, 8)
-    bp = ax.boxplot(widths=0.7, patch_artist=True, x=[data[name][item] for item in systems_compared], whis=[5, 99], sym=" ")
+    ax2 = fig.add_subplot(1, 6, 6)
+    bp = ax2.boxplot(widths=0.7, patch_artist=True, x=[data["E"][item] for item in systems_compared], whis=[5, 99], sym=" ")
     # ax2.set_yscale('log')
     plt.setp(bp['boxes'], linewidth=0.6)
     plt.setp(bp['medians'], linewidth=0.6)
     plt.setp(bp['whiskers'], linewidth=1.0)
     color_box(bp)
-    ax.set(xticklabels='')
-    workloadXtick = ax.set(xlabel='E')
+    ax2.set(xticklabels='')
+    workloadXtick = ax2.set(xlabel='E')
     plt.setp(workloadXtick)
     # ax2.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5)
     # Hide these grid behind plot objects
-    ax.set_axisbelow(True)
-    ax.margins(0.05)  # Optional
-    ax.yaxis.tick_right()
-    ax.yaxis.set_label_position("right")
-    ax.set_ylim(0)
+    ax2.set_axisbelow(True)
+    ax2.margins(0.05)  # Optional
+    ax2.yaxis.tick_right()
+    ax2.yaxis.set_label_position("right")
+    ax2.set_ylim(0, 2000)
 
-    xaxis = ax.xaxis
+    xaxis = ax2.xaxis
     xaxis.set_ticks_position('none')
-    yaxis = ax.yaxis
+    yaxis = ax2.yaxis
     yaxis.set_tick_params(width=0.3, size=2)
     # yaxis.set_ticks_position('none')
     str_ylabels = []
-    for y_tick in ax.get_yticks():
+    for y_tick in ax2.get_yticks():
         str_ylabels.append(str(int(y_tick)))
-    ax.set_yticklabels(str_ylabels)
+    ax2.set_yticklabels(str_ylabels)
     for axis in ['top','bottom','left','right']:
-        ax.spines[axis].set_linewidth(0.1)
+        ax2.spines[axis].set_linewidth(0.1)
 
     whiskers = bp['whiskers']
     wi = 0
@@ -332,7 +332,7 @@ def plot_multiboxplot(data, outname, workloads, systems_compared, systems_labels
     hB, = plt.plot([1, 1], color=get_bw_colors()[1], linestyle='-.', linewidth=0.8)
     hC, = plt.plot([1, 1], color=get_bw_colors()[0], linewidth=0.8)
     hD, = plt.plot([1, 1], color=get_bw_colors()[1], linestyle='--', linewidth=0.8)
-    leg = plt.legend((hA, hB, hC, hD), (systems_compared),bbox_to_anchor=(1.98, 1.15), loc='upper right', ncol=4,
+    leg = plt.legend((hA, hB, hC, hD), (systems_compared),bbox_to_anchor=(1.9, 1.17), loc='upper right', ncol=4,
                      fancybox=True)
     leg.get_frame().set_alpha(0.0)
     hA.set_visible(False)

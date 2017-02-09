@@ -28,10 +28,9 @@ import numpy as np
 import pandas as pd
 import plots.utils as utils
 
-files = ["CPLEX-off_stats.csv", "CPLEX-on_stats.csv", "GR-NODE_CAND_stats.csv", "GR-SERIAL_stats.csv", "GR-RANDOM_stats.csv"]
-labels = ["ILP-offline", "ILP-online", "Node Candidates", "Random"]
-labels_map={"CPLEX-on": "MEDEA", "CPLEX-off": "MEDEA offline",
-            "GR-NODE_CAND": "Node Candidates", "GR-RANDOM": "Popular Tags", "GR-SERIAL": "Aurora"}
+files = ["ILP-on_stats.csv", "GR-NODE_CAND_stats.csv", "GR-SERIAL_stats.csv", "GR-RANDOM_stats.csv"]
+labels = ["ILP-online", "Node Candidates", "Random"]
+labels_map={"ILP-on": "MEDEA", "GR-NODE_CAND": "Node Candidates", "GR-RANDOM": "Popular Tags", "GR-SERIAL": "Aurora"}
 
 cluster_size = 100
 
@@ -110,7 +109,7 @@ def grouped_bar(data):
     ax.set_xticks(indexes)
     ax.set_xticklabels(["10", "20", "30", "40", "50", "60", "70", "80", "90", "100"])
     utils.plt.setp(utils.plt.xticks()[1], rotation=00)
-    ax.set_xlim(0,11)
+    ax.set_xlim(0.4,8.6)
 
     # Add the axis labels
     ax.set_ylabel("Fragmentation (\%)", labelpad=2)
@@ -142,8 +141,7 @@ def file_parser(fnames):
     # grouped_data = all_data.groupby(['  Plan technique', '  totJobs'])['  ObjectiveValue '].mean()
     print all_data.columns.values
     # print grouped_data
-    numpyMatrix = all_data[['  Plan technique', '  totJobs','  FragmentedNodes']].values
-    # print numpyMatrix
+    numpyMatrix = all_data[['  Plan technique', '  totJobs','  FragmentedNodes (%)']].values
     return numpyMatrix
 
 

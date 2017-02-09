@@ -35,10 +35,9 @@ import brewer2mpl
 # colors = bmap.mpl_colors
 
 
-files = ["CPLEX-off_stats.csv", "CPLEX-on_stats.csv", "GR-NODE_CAND_stats.csv", "GR-SERIAL_stats.csv", "GR-RANDOM_stats.csv"]
-labels = ["ILP-offline", "ILP-online", "Node Candidates", "Random"]
-labels_map={"CPLEX-on": "MEDEA", "CPLEX-off": "MEDEA offline",
-            "GR-NODE_CAND": "Node Candidates", "GR-RANDOM": "Popular Tags", "GR-SERIAL": "Aurora"}
+files = ["CPLEX-on_stats.csv", "GR-NODE_CAND_stats.csv", "GR-SERIAL_stats.csv", "GR-RANDOM_stats.csv"]
+labels = ["ILP-online", "Node Candidates", "Random"]
+labels_map={"CPLEX-on": "MEDEA", "GR-NODE_CAND": "Node Candidates", "GR-RANDOM": "Popular Tags", "GR-SERIAL": "Aurora"}
 
 
 # colors = ['r', 'g', 'b', 'black', 'c', 'm']
