@@ -153,7 +153,7 @@ if __name__ == '__main__':
     if (len(sys.argv) - 1) % 2 != 0:
       outname = sys.argv[-1]
     else:
-      outname = "storm_placement_latency_cdf"
+      outname = "storm_placement_latency"
 
     fpaths = []
     labels = []

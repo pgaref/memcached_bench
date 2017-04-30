@@ -118,7 +118,7 @@ def file_parser(fnames):
 
 if __name__ == '__main__':
 
-    print "Sytem Path {}".format(os.environ['PATH'])
+    print "System Path {}".format(os.environ['PATH'])
 
     # if len(sys.argv) < 2:
     #     print "Usage: scheduling_latency.py <input PATH>"

@@ -35,9 +35,9 @@ import plots.utils as utils
 # colors = bmap.mpl_colors
 
 
-files = ["CPLEX-on_stats.csv", "GR-NODE_CAND_stats.csv", "GR-SERIAL_stats.csv", "GR-RANDOM_stats.csv"]
+files = ["ILP-on_stats.csv", "GR-NODE_CAND_CACHED_stats.csv", "GR-AURORA_stats.csv", "GR-TAGS_stats.csv"]
 labels = ["ILP-online", "Node Candidates", "Random"]
-labels_map={"CPLEX-on": "MEDEA", "GR-NODE_CAND": "Node Candidates", "GR-RANDOM": "Popular Tags", "GR-SERIAL": "Aurora"}
+labels_map={"ILP-on": "MEDEA", "GR-NODE_CAND_CACHED": "Node Candidates", "GR-TAGS": "Popular Tags", "GR-AURORA": "Aurora"}
 
 
 # colors = ['r', 'g', 'b', 'black', 'c', 'm']
@@ -78,8 +78,13 @@ def latency_logscale(data):
         print "cond:", cond
         y_vals = data[data[:, 0] == cond][:, 2].astype(np.float)
         x_vals = data[data[:, 0] == cond][:, 1].astype(np.int)
+        num_services = data[data[:, 0] == cond][:, 3].astype(np.int)
+        # Measuruing per Job/Service latency
+        for tmp in range(len(y_vals)):
+            y_vals[tmp] = y_vals[tmp]/num_services[tmp]
+
         if labels_map.has_key(str(cond).strip()):
-            ax.plot(x_vals, y_vals, label=labels_map[str(cond).strip()], color=utils.micro_color_list[i], linestyle=linestyle_list[i],
+            ax.plot(range(1, len(x_vals)+1), y_vals, label=labels_map[str(cond).strip()], color=utils.micro_color_list[i], linestyle=linestyle_list[i],
                     marker=markers[i], linewidth=1)
             i +=1
 
@@ -88,17 +93,19 @@ def latency_logscale(data):
     print "Categories: ", categories
 
     # Add the axis labels
-    ax.set_ylabel("Scheduling runtime (ms - logscale)")
+    ax.set_ylabel("Job Scheduling latency (ms)")
     ax.set_xlabel("Number of Nodes", )
 
     # Make Y axis logscale
     utils.plt.yscale('log', nonposy='clip')
+    utils.plt.ylim(-1000, (y_vals[len(y_vals) - 1] + 1000))
     # Add a legend
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles[::-1], labels[::-1])
     utils.plt.tight_layout()
     # Create some space for the last marker
-    utils.plt.xlim((0, x_vals[len(x_vals)-1]+10))
+    utils.plt.xlim((0.7, len(x_vals)+0.3))
+    # utils.plt.ylim(-50, 960)
 
     # str_ylabels = ['0.0', '0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0']
     # ax.set_yticklabels(str_ylabels)
@@ -107,10 +114,13 @@ def latency_logscale(data):
         str_ylabels.append(str(str_fmt(y_tick)))
     ax.set_yticklabels(str_ylabels)
 
-
     str_xlabels = []
-    for x_tick in ax.get_xticks():
-        str_xlabels.append(str(int(x_tick)))
+    for x_tick in categories:
+        if x_tick/1000 > 0:
+            str_xlabels.append(str(x_tick/1000)+"K")
+        else:
+            str_xlabels.append(str(x_tick))
+    ax.set_xticks(indexes)
     ax.set_xticklabels(str_xlabels)
 
     for axis in ['top', 'bottom', 'left', 'right']:
@@ -125,7 +135,7 @@ def file_parser(fnames):
     # grouped_data = all_data.groupby(['  Plan technique', '  totJobs'])['  ObjectiveValue '].mean()
     print all_data.columns.values
     # print grouped_data
-    numpyMatrix = all_data[['  Plan technique', '  clusterSize', '  runTime(ms)']].values
+    numpyMatrix = all_data[['  Plan technique', '  clusterSize', '  runTime(ms)', '  services']].values
     # print numpyMatrix
     return numpyMatrix
 
@@ -135,9 +145,9 @@ if __name__ == '__main__':
     print "System Path {}".format(os.environ['PATH'])
 
     if len(sys.argv) < 2:
-        print "Usage: logscale_latency.py <input PATH>"
+        print "Usage: job_latency.py <input PATH>"
         sys.exit(-1)
-    outname = "placement_latency_log"
+    outname = "job_latency"
 
     fpaths = []
     for file in files:
