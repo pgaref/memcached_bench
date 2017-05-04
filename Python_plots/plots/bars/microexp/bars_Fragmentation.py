@@ -28,9 +28,9 @@ import numpy as np
 import pandas as pd
 import plots.utils as utils
 
-files = ["ILP-on_stats.csv", "GR-NODE_CAND_stats.csv", "GR-SERIAL_stats.csv", "GR-RANDOM_stats.csv"]
+files = ["ILP-on_stats.csv", "GR-NODE_CAND_stats.csv", "AURORA_stats.csv", "GR-RANDOM_stats.csv"]
 labels = ["ILP-online", "Node Candidates", "Random"]
-labels_map={"ILP-on": "MEDEA", "GR-NODE_CAND": "Node Candidates", "GR-RANDOM": "Popular Tags", "GR-SERIAL": "Aurora"}
+labels_map={"ILP-on": "MEDEA-ILP", "GR-NODE_CAND": "MEDEA-NC", "GR-RANDOM": "MEDEA-PT", "AURORA": "Aurora"}
 
 cluster_size = 100
 
@@ -87,7 +87,13 @@ def grouped_bar(data):
     space = 0.2
 
     conditions = np.unique(data[:, 0])
+    tmp = conditions[1]
+    conditions[1]= conditions[3]
+    conditions[3] = tmp
     categories = np.unique(data[:, 1])
+    tmp = categories[1]
+    categories[1] = categories[3]
+    categories[3] = tmp
     # n = len(conditions)
     n = len(labels_map)
 
@@ -96,6 +102,7 @@ def grouped_bar(data):
 
     i = 0
     for cond in conditions:
+        print cond
         y_vals = data[data[:, 0] == cond][:, 2].astype(np.float)
         pos = [j - (1 - space) / 2. + i * width for j in range(1, len(categories) + 1)]
         if labels_map.has_key(str(cond).strip()):
@@ -147,7 +154,7 @@ def file_parser(fnames):
 
 if __name__ == '__main__':
 
-    print "Sytem Path {}".format(os.environ['PATH'])
+    print "System Path {}".format(os.environ['PATH'])
 
     if len(sys.argv) < 2:
         print "Usage: bars_fragmentation.py.py <input PATH>"
