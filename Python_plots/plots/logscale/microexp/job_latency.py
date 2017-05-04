@@ -37,7 +37,7 @@ import plots.utils as utils
 
 files = ["ILP-on_stats.csv", "GR-NODE_CAND_CACHED_stats.csv", "GR-AURORA_stats.csv", "GR-TAGS_stats.csv"]
 labels = ["ILP-online", "Node Candidates", "Random"]
-labels_map={"ILP-on": "MEDEA", "GR-NODE_CAND_CACHED": "Node Candidates", "GR-TAGS": "Popular Tags", "GR-AURORA": "Aurora"}
+labels_map={"ILP-on": "MEDEA-ILP", "GR-NODE_CAND_CACHED": "MEDEA-NC", "GR-TAGS": "MEDEA-TP", "GR-AURORA": "Aurora"}
 
 
 # colors = ['r', 'g', 'b', 'black', 'c', 'm']
@@ -84,7 +84,7 @@ def latency_logscale(data):
             y_vals[tmp] = y_vals[tmp]/num_services[tmp]
 
         if labels_map.has_key(str(cond).strip()):
-            ax.plot(range(1, len(x_vals)+1), y_vals, label=labels_map[str(cond).strip()], color=utils.micro_color_list[i], linestyle=linestyle_list[i],
+            ax.plot(x_vals, y_vals, label=labels_map[str(cond).strip()], color=utils.micro_color_list[i], linestyle=linestyle_list[i],
                     marker=markers[i], linewidth=1)
             i +=1
 
@@ -93,34 +93,39 @@ def latency_logscale(data):
     print "Categories: ", categories
 
     # Add the axis labels
-    ax.set_ylabel("Job Scheduling latency (ms)")
-    ax.set_xlabel("Number of Nodes", )
+    ax.set_ylabel("LRA scheduling latency (ms)")
+    ax.set_xlabel("Number of nodes", )
 
     # Make Y axis logscale
-    utils.plt.yscale('log', nonposy='clip')
-    utils.plt.ylim(-1000, (y_vals[len(y_vals) - 1] + 1000))
+    # utils.plt.yscale('log', nonposy='clip')
+    # utils.plt.ylim(-1000, (y_vals[len(y_vals) - 1] + 1000))
     # Add a legend
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles[::-1], labels[::-1])
     utils.plt.tight_layout()
     # Create some space for the last marker
-    utils.plt.xlim((0.7, len(x_vals)+0.3))
-    # utils.plt.ylim(-50, 960)
+    utils.plt.xlim((0, 5100))
+    utils.plt.ylim(-50, 960)
 
     # str_ylabels = ['0.0', '0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0']
     # ax.set_yticklabels(str_ylabels)
     str_ylabels = []
     for y_tick in ax.get_yticks():
-        str_ylabels.append(str(str_fmt(y_tick)))
+        str_ylabels.append(str((int(y_tick))))
     ax.set_yticklabels(str_ylabels)
 
+    # str_xlabels = []
+    # for x_tick in categories:
+    #     if x_tick/1000 > 0:
+    #         str_xlabels.append(str(x_tick/1000)+"K")
+    #     else:
+    #         str_xlabels.append(str(x_tick))
+    # ax.set_xticks(indexes)
+    # ax.set_xticklabels(str_xlabels)
+
     str_xlabels = []
-    for x_tick in categories:
-        if x_tick/1000 > 0:
-            str_xlabels.append(str(x_tick/1000)+"K")
-        else:
-            str_xlabels.append(str(x_tick))
-    ax.set_xticks(indexes)
+    for x_tick in  ax.get_xticks():
+        str_xlabels.append(str(int(x_tick)))
     ax.set_xticklabels(str_xlabels)
 
     for axis in ['top', 'bottom', 'left', 'right']:
