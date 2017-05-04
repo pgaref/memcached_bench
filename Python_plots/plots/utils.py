@@ -120,11 +120,11 @@ paper_figsize_default = (3.33, 2.22)  # 11, 6
 
 def set_paper_rcs():
   rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica']})
-  rc('font', size=12)
+  rc('font', size=8)
   rc('text', usetex=True)
   # rc('text.latex', preamble=['\usepackage{mathptmx,sans-serif}'])
-  rc('legend', fontsize=6.3)
-  rc('figure', figsize=paper_figsize_latency_boxplot)
+  rc('legend', fontsize=6)
+  rc('figure', figsize=paper_figsize_logscale)
 #  rc('figure.subplot', left=0.10, top=0.90, bottom=0.12, right=0.95)
   rc('axes', linewidth=0.5)
   #   rc('axes', linewidth=0.2)

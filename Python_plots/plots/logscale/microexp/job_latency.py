@@ -37,7 +37,7 @@ import plots.utils as utils
 
 files = ["ILP-on_stats.csv", "GR-NODE_CAND_CACHED_stats.csv", "GR-AURORA_stats.csv", "GR-TAGS_stats.csv"]
 labels = ["ILP-online", "Node Candidates", "Random"]
-labels_map={"ILP-on": "MEDEA-ILP", "GR-NODE_CAND_CACHED": "MEDEA-NC", "GR-TAGS": "MEDEA-TP", "GR-AURORA": "Aurora"}
+labels_map={"ILP-on": "MEDEA-ILP", "GR-NODE_CAND_CACHED": "MEDEA-NC", "GR-TAGS": "MEDEA-PT", "GR-AURORA": "Aurora"}
 
 
 # colors = ['r', 'g', 'b', 'black', 'c', 'm']
