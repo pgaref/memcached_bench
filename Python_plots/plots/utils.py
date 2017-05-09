@@ -29,6 +29,7 @@ import matplotlib
 #matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.stats import scoreatpercentile
 import brewer2mpl
 
 # brewer2mpl.get_map args: set name  set type  number of colors
@@ -104,12 +105,13 @@ def prepare_legend(legend_loc=1, legend_ncol=1, alpha_num=0.8, bbox_to_anchor=No
     # leg.get_frame().set_linewidth(0.1)
     return
 
-
+# (width, height)
 paper_figsize_small = (1.1, 1.1)
 paper_figsize_small_square = (1.5, 1.5)
 paper_figsize_medium = (2, 1.33)
+paper_figsize_google_speedup = (2, 1.0)  # 8, 5
 paper_figsize_medium_square = (2, 2)
-#paper_figsize_medium = (1.66, 1.1)
+# paper_figsize_medium = (1.66, 1.1)
 paper_figsize_large = (3, 2)
 paper_figsize_storm_cdf = (2.2, 1.22) # font=6, 5
 paper_figsize_latency_boxplot = (3.33, 2.22)  # 12, 6.3
@@ -117,14 +119,15 @@ paper_figsize_logscale = (3.33, 2)  # 8, 6
 paper_figsize_microexp_bars = (3.33, 2)  # 8, 6
 paper_figsize_throughput_bars = (3.33, 2.22)  # 11, 6
 paper_figsize_default = (3.33, 2.22)  # 11, 6
+paper_figsize_fragmentation = (1.5 ,1.5) # 6, 4
 
 def set_paper_rcs():
   rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica']})
   rc('font', size=8)
   rc('text', usetex=True)
   # rc('text.latex', preamble=['\usepackage{mathptmx,sans-serif}'])
-  rc('legend', fontsize=6)
-  rc('figure', figsize=paper_figsize_logscale)
+  rc('legend', fontsize=5)
+  rc('figure', figsize=paper_figsize_google_speedup)
 #  rc('figure.subplot', left=0.10, top=0.90, bottom=0.12, right=0.95)
   rc('axes', linewidth=0.5)
   #   rc('axes', linewidth=0.2)
@@ -373,3 +376,70 @@ def plot_boxplot(data, outname, systems_compared, systems_labels):
     print "Done with plots"
     writeout("%s"%outname)
     print "Done with Writing to file"
+
+# @author: Aaron Blankstein, with modifications by Malte Schwarzkopf
+class boxplotter(object):
+    def __init__(self, median, top, bottom, whisk_top=None,
+                 whisk_bottom=None, extreme_top=None):
+        self.median = median
+        self.top = top
+        self.bott = bottom
+        self.whisk_top = whisk_top
+        self.whisk_bott = whisk_bottom
+        self.extreme_top = extreme_top
+    def draw_on(self, ax, index, box_color = "blue",
+                median_color = "red", whisker_color = "black",
+                blw=0.5, mlw=1.0):
+        width = .3
+        w2 = width / 2
+        ax.broken_barh([(index - w2, width)],
+                       (self.bott,self.top - self.bott),
+                        facecolor="white", edgecolor=box_color, lw=blw)
+        ax.broken_barh([(index - w2, width)],
+                        (self.median,0),
+                        facecolor="white", edgecolor=median_color, lw=mlw)
+        if self.whisk_top is not None:
+            ax.broken_barh([(index - w2, width)],
+                           (self.whisk_top,0),
+                            facecolor="white", edgecolor=whisker_color, lw=blw)
+            ax.broken_barh([(index , 0)],
+                           (self.whisk_top, self.top-self.whisk_top),
+                            edgecolor=box_color,linestyle="dashed", lw=blw)
+        if self.whisk_bott is not None:
+            ax.broken_barh([(index - w2, width)],
+                           (self.whisk_bott,0),
+                            facecolor="white", edgecolor=whisker_color, lw=blw)
+            ax.broken_barh([(index , 0)],
+                           (self.whisk_bott,self.bott-self.whisk_bott),
+                            edgecolor=box_color, linestyle="dashed", lw=blw)
+        if self.extreme_top is not None:
+            ax.scatter([index], [self.extreme_top], marker='*',
+                        edgecolor=box_color, facecolor=box_color, lw=blw)
+
+def percentile_box_plot(ax, data, indexer=None, index_base=1, index_step=1,
+                        box_top=75, box_bottom=25, whisker_top=99,
+                        whisker_bottom=1, color='k', label="",
+                        box_lw=0.5, median_lw=1.0):
+    if indexer is None:
+        index_end = index_base + index_step * len(data) + 1
+        indexed_data = zip(range(index_base, index_end, index_step), data)
+    else:
+        indexed_data = [(indexer(datum), datum) for datum in data]
+    def get_whisk(vector, w):
+        if w is None:
+            return None
+        return scoreatpercentile(vector, w)
+
+    for index, x in indexed_data:
+        if type(color) is list:
+            colour = color[index]
+        else:
+            colour = color
+        bp = boxplotter(scoreatpercentile(x, 50),
+                        scoreatpercentile(x, box_top),
+                        scoreatpercentile(x, box_bottom),
+                        get_whisk(x, whisker_top),
+                        get_whisk(x, whisker_bottom),
+                        scoreatpercentile(x, 100))
+        bp.draw_on(ax, index, box_color=colour, median_color=colour,
+                   whisker_color=colour, blw=box_lw, mlw=median_lw)
