@@ -28,9 +28,8 @@ import numpy as np
 import pandas as pd
 import plots.utils as utils
 
-files = ["ILP-on_stats.csv", "GR-NODE_CAND_stats.csv", "AURORA_stats.csv", "GR-RANDOM_stats.csv"]
-labels = ["ILP-online", "Node Candidates", "Random"]
-labels_map={"ILP-on": "MEDEA-ILP", "GR-NODE_CAND": "MEDEA-NC", "GR-RANDOM": "MEDEA-PT", "AURORA": "Aurora"}
+files = ["ILP-on_stats.csv", "GR-NODE_CAND_CACHED_stats.csv", "AURORA_stats.csv", "GR-APP_RR_TAG_stats.csv"]
+labels_map={"ILP-on": "MEDEA-ILP", "GR-NODE_CAND_CACHED": "MEDEA-NC", "GR-APP_RR_TAG": "MEDEA-PT", "AURORA": "Aurora"}
 
 cluster_size = 100
 
@@ -46,8 +45,8 @@ def color_bars(axes, colors):
     for p in axes.patches:
         # Pull out the dark and light colors for
         # the current subplot
-        dark_color = colors[i % len(labels)]
-        light_color = colors[(i + 1) % len(labels)]
+        dark_color = colors[i % len(files)]
+        light_color = colors[(i + 1) % len(files)]
         # The first bar gets the dark color
         # p1.set_color(dark_color)
 
@@ -55,7 +54,7 @@ def color_bars(axes, colors):
         # hatch marks int he dark color
         p.set_color(light_color)
         p.set_edgecolor(dark_color)
-        p.set_hatch(utils.hatch_patterns[i % len(labels)])
+        p.set_hatch(utils.hatch_patterns[i % len(files)])
         i += 1
 
 
@@ -94,7 +93,7 @@ def grouped_bar(data):
     tmp = categories[1]
     categories[1] = categories[3]
     categories[3] = tmp
-    # n = len(conditions)
+    n = len(conditions)
     n = len(labels_map)
 
     width = (1 - space) / n
@@ -114,13 +113,13 @@ def grouped_bar(data):
     print "Indexes: ", indexes
     print "Categories: ", categories
     ax.set_xticks(indexes)
-    ax.set_xticklabels(["10", "20", "30", "40", "50", "60", "70", "80", "90", "100"])
+    ax.set_xticklabels(["20", "40", "60", "80"])
     utils.plt.setp(utils.plt.xticks()[1], rotation=00)
-    ax.set_xlim(0.4,8.6)
+    ax.set_xlim(0.7,4.7)
 
     # Add the axis labels
     ax.set_ylabel("Fragmentation (\%)", labelpad=2)
-    ax.set_xlabel("Services running (cluster \%)", labelpad=2)
+    ax.set_xlabel("LRAs running (cluster \%)", labelpad=2)
 
     str_ylabels = []
     for y_tick in ax.get_yticks():

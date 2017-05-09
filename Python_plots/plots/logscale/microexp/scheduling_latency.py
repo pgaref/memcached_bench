@@ -77,7 +77,7 @@ def scheduling_latency(data):
     print "Indexes: ", indexes
     print "Categories: ", categories
     ax.set_xticks(indexes)
-    ax.set_xticklabels(["0", "5", "10", "20", "30", "40", "50", "60", "70", "80", "90", "100"])
+    ax.set_xticklabels(["0", "", "", "20", "", "40", "", "60", "", "80", "", "100"])
     utils.plt.setp(utils.plt.xticks()[1], rotation=00)
     ax.set_xlim(0, indexes[len(indexes)-1]+1)
 
@@ -125,7 +125,7 @@ if __name__ == '__main__':
     #     sys.exit(-1)
     outname = "scheduling_latency"
 
-    path = "/Users/pgaref/Development/memcached_bench/Python_plots/data/medea_scheduling2/"
+    path = "/media/mydatadrive/Medea/micro-experiments/medea_scheduling2/"
     fpaths = []
     for file in files:
       fpaths.append(path+"/"+file)

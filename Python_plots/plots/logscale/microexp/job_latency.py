@@ -93,7 +93,7 @@ def latency_logscale(data):
     print "Categories: ", categories
 
     # Add the axis labels
-    ax.set_ylabel("LRA scheduling latency (ms)")
+    ax.set_ylabel("Scheduling latency (ms)")
     ax.set_xlabel("Number of nodes", )
 
     # Make Y axis logscale

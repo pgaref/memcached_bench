@@ -29,9 +29,7 @@ import pandas as pd
 import plots.utils as utils
 
 files = ["ILP-on_stats.csv", "GR-NODE_CAND_CACHED_stats.csv", "GR-SERIAL_stats.csv", "GR-RANDOM_stats.csv"]
-labels = [ "ILP-online", "Node Candidates", "Random"]
-labels_map={"ILP-on": "MEDEA",
-            "GR-NODE_CAND_CACHED": "Node Candidates", "GR-RANDOM": "Popular Tags", "GR-SERIAL": "Aurora"}
+labels_map={"ILP-on": "MEDEA", "GR-NODE_CAND_CACHED": "Node Candidates", "GR-RANDOM": "Popular Tags", "GR-SERIAL": "Aurora"}
 
 cluster_size = 100
 
@@ -47,8 +45,8 @@ def color_bars(axes, colors):
     for p in axes.patches:
         # Pull out the dark and light colors for
         # the current subplot
-        dark_color = colors[i % len(labels)]
-        light_color = colors[(i + 1) % len(labels)]
+        dark_color = colors[i % len(files)]
+        light_color = colors[(i + 1) % len(files)]
         # The first bar gets the dark color
         # p1.set_color(dark_color)
 
@@ -56,7 +54,7 @@ def color_bars(axes, colors):
         # hatch marks int he dark color
         p.set_color(light_color)
         p.set_edgecolor(dark_color)
-        p.set_hatch(utils.hatch_patterns[i % len(labels)])
+        p.set_hatch(utils.hatch_patterns[i % len(files)])
         i += 1
 
 
@@ -108,12 +106,12 @@ def grouped_bar(data):
     print "Indexes: ", indexes
     print "Categories: ", categories
     ax.set_xticks(indexes)
-    ax.set_xticklabels(["10", "20", "30", "40", "50", "60", "70", "80",])
+    ax.set_xticklabels(["20", "40", "60", "80",])
     utils.plt.setp(utils.plt.xticks()[1], rotation=00)
     ax.set_xlim(0.4,8.6)
 
     # Add the axis labels
-    ax.set_ylabel("Heavily-utilized nodes (\%)", labelpad=2)
+    ax.set_ylabel("Standard deviation", labelpad=2)
     ax.set_xlabel("Services running (cluster \%)", labelpad=2)
 
     str_ylabels = []
@@ -142,7 +140,7 @@ def file_parser(fnames):
     # grouped_data = all_data.groupby(['  Plan technique', '  totJobs'])['  ObjectiveValue '].mean()
     print all_data.columns.values
     # print grouped_data
-    numpyMatrix = all_data[['  Plan technique', '  totJobs','  FragmentedNodes (%)']].values
+    numpyMatrix = all_data[['  Plan technique', '  totJobs','  U std_dev']].values
     # print numpyMatrix
     return numpyMatrix
 
@@ -152,10 +150,10 @@ if __name__ == '__main__':
     print "System Path {}".format(os.environ['PATH'])
 
     if len(sys.argv) < 2:
-        print "Usage: bars_heavil.py.py <input PATH>"
+        print "Usage: bars_heavilyUtilized.py <input PATH>"
         sys.exit(-1)
 
-    outname = "placement_fully_utilized_nodes_bars"
+    outname = "nodes_util_std_dev"
 
     fpaths = []
     for file in files:
