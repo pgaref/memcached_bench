@@ -28,14 +28,13 @@ import numpy as np
 import pandas as pd
 import plots.utils as utils
 
-files = ["ILP-on_stats.csv", "GR-NODE_CAND_CACHED_stats.csv", "AURORA_stats.csv", "GR-APP_RR_TAG_stats.csv"]
-# labels = ["ILP-online", "Node Candidates", "Random"]
-labels_map={"ILP-on": "MEDEA-ILP", "GR-NODE_CAND_CACHED": "MEDEA-NC", "GR-APP_RR_TAG": "MEDEA-PT", "AURORA": "Aurora"}
-
-cluster_size = 100
+files = ["ILP-on_stats.csv", "GR-NODE_CAND_CACHED_stats.csv", "GR-SERIAL_stats.csv", "GR-APP_C_TAG_L_stats.csv", "KUBE_stats.csv"]
+labels = ["ILP", "Node Candidates", "Serial", "Popular Tags", "Kubernetes"]
+labels_map={"ILP-on": "ILP", "GR-NODE_CAND_CACHED": "Node Candidates",
+            "GR-SERIAL": "Serial",  "GR-APP_C_TAG_L": "Popular Tags","KUBE": "Kubernetes"}
 
 # Global style configuration
-utils.set_rcs()
+# utils.set_rcs()
 
 
 
@@ -58,16 +57,6 @@ def color_bars(axes, colors):
         p.set_hatch(utils.hatch_patterns[i % len(files)])
         i += 1
 
-
-def calc_max_value(service_tasks):
-    node_memory = 4
-    return 100*(service_tasks/5) + node_memory + cluster_size
-
-
-def percentage(part, whole):
-  return 100 * float(part)/float(whole)
-
-
 def optimal_line_graph(formula, x_range):
     x = np.array(x_range)
     y = eval(formula)
@@ -86,24 +75,16 @@ def grouped_bar(data):
 
     space = 0.2
 
-    conditions = np.unique(data[:, 0])
-    aurora = conditions[0]
-    medea_pt = conditions[1]
-    medead_nc = conditions[2]
-    medea_ilp = conditions[3]
-
-    conditions[0] = medea_ilp
-    conditions[1] = medead_nc
-    conditions[2] = medea_pt
-    conditions[3] = aurora
-    categories = np.unique(data[:, 1])
+    condition_indexes = np.unique(data[:, 0], return_index=True)[1]
+    conditions = [data[:, 0][index] for index in sorted(condition_indexes)]
+    categories = np.unique(data[:, 11])
 
 
-    print conditions
+    print "C: ",format(conditions)
     print categories
 
     # n = len(conditions)
-    n = len(labels_map)
+    n = len(files)
 
     width = (1 - space) / n
     print "width:", width
@@ -111,10 +92,11 @@ def grouped_bar(data):
     i = 0
     for cond in conditions:
         print cond
-        y_vals = data[data[:, 0] == cond][:, 2].astype(np.float)
-        print y_vals
+        y_vals = data[data[:, 0] == cond][:, 19].astype(np.float)
         pos = [j - (1 - space) / 2. + i * width for j in range(1, len(categories) + 1)]
         if labels_map.has_key(str(cond).strip()):
+            print "X: {}".format(pos)
+            print "Y: {}".format(y_vals)
             ax.bar(pos, y_vals, width=width, label=labels_map[str(cond).strip()], color=utils.get_bw_colors()[i],
                    hatch=utils.hatch_patterns[i], edgecolor='black', linewidth=0.05)
             i +=1
@@ -123,14 +105,16 @@ def grouped_bar(data):
     print "Indexes: ", indexes
     print "Categories: ", categories
     ax.set_xticks(indexes)
-    ax.set_xticklabels(["20", "40", "60", "80"])
+    ax.set_xticklabels(["10", "20", "30", "40", "50", "60", "70", "80", "90", "100"])
     utils.plt.setp(utils.plt.xticks()[1], rotation=00)
-    ax.set_ylim(0,5)
-    ax.set_xlim(0.3,4.7)
+    ax.set_ylim(0, 5)
+    ax.set_xlim(0.3,9.5)
 
     # Add the axis labels
-    ax.set_ylabel("Standard deviation", labelpad=2)
-    ax.set_xlabel("LRAs running (cluster \%)", labelpad=2)
+    ax.set_ylabel("Load imbalance(std_dev) \n Soft:{} Period:{} Complexity:{}".format(np.unique(data[:, 13])[0].strip(),
+                                                                                      np.unique(data[:, 14])[0],
+                                                                                      np.unique(data[:, 15])[0]), labelpad=2)
+    ax.set_xlabel("LRAs running (cluster %)\n Nodes: {} Racks: {}".format(np.unique(data[:, 8])[0], np.unique(data[:, 7])[0]), labelpad=2)
 
     str_ylabels = []
     for y_tick in ax.get_yticks():
@@ -158,7 +142,12 @@ def file_parser(fnames):
     # grouped_data = all_data.groupby(['  Plan technique', '  totJobs'])['  ObjectiveValue '].mean()
     print all_data.columns.values
     # print grouped_data
-    numpyMatrix = all_data[['  Plan technique', '  totJobs', '  U std_dev']].values
+    numpyMatrix = all_data[['    PlannerAlgorithm', '  Runtime(ms)', '  LRAs', '  LraRRs',
+                            '  TagsAvg', '  AcceptedLRAs', '  AcceptedRRs', '  Racks', '  Nodes',
+                            '  NodesMem(GB)', '  AllocatedMem(GB)', '  NodesMemUtil(%)',
+                            '  LraSuccess(%)', '  Soft', '  Period', '  Complexity', '  Violations',
+                            '  FragmentedNodes(%)', '  LeastLoadedNode(%)', '  LoadImbalance(stdev)',
+                            '  CWeight', '  RWeight', '  LWeight', '  ObjectiveValue ']].values
     return numpyMatrix
 
 
@@ -170,7 +159,7 @@ if __name__ == '__main__':
         print "Usage: bars_std_dev.py <input PATH>"
         sys.exit(-1)
 
-    outname = "nodes_util_std_dev"
+    outname = "load_imbalance(std_dev)"
 
     fpaths = []
     for file in files:
@@ -182,6 +171,6 @@ if __name__ == '__main__':
 
     data = file_parser(fpaths)
     fig, axes = grouped_bar(data)
-    utils.set_rcs()
+    # utils.set_rcs()
     utils.prepare_legend(legend_loc="upper left", legend_ncol=1, bbox_to_anchor=(0.015, 0.99), frameOn=False)
     utils.writeout("%s"%outname)

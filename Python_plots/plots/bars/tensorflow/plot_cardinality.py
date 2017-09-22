@@ -28,17 +28,25 @@ import numpy as np
 import pandas as pd
 import plots.utils as utils
 
-files = ["CPLEX-off_stats.csv", "CPLEX-on_stats.csv", "GR-NODE_CAND_stats.csv", "GR-SERIAL_stats.csv", "GR-RANDOM_stats.csv"]
-# files = ["CPLEX-off_stats.csv", "CPLEX-on_stats.csv", "GR-SERIAL_stats.csv", "GR-RANDOM_stats.csv"]
-labels = ["ILP-offline", "ILP-online", "Node Candidates", "Random"]
-labels_map={"CPLEX-on": "MEDEA", "CPLEX-off": "MEDEA offline",
-            "GR-NODE_CAND": "Node Candidates", "GR-RANDOM": "Popular Tags", "GR-SERIAL": "Aurora"}
+files = ["no_load.csv", "load_70.csv"]
+labels = ["Tensorflow (isolated)", "Tensorflow (with background)"]
+labels_map={"Tensorflow (isolated)": "no_load.csv", "Tensorflow (with background)": "load_70.csv"}
 
-cluster_size = 100
+hatch_patterns = ["", "/", "\\", "x", ".", "o", "O"]
 
 # Global style configuration
-utils.set_rcs()
+# utils.set_rcs()
 
+
+def get_colors():
+    return np.array([
+        [0.1, 0.1, 0.1],          # black
+        [0.4, 0.4, 0.4],          # very dark gray
+        [0.7, 0.7, 0.7],          # dark gray
+        [0.9, 0.9, 0.9],          # light gray
+        [0.984375, 0.7265625, 0], # dark yellow
+        [1, 1, 0.9]               # light yellow
+    ])
 
 
 def color_bars(axes, colors):
@@ -57,17 +65,8 @@ def color_bars(axes, colors):
         # hatch marks int he dark color
         p.set_color(light_color)
         p.set_edgecolor(dark_color)
-        p.set_hatch(utils.hatch_patterns[i % len(labels)])
+        p.set_hatch(hatch_patterns[i % len(labels)])
         i += 1
-
-
-def calc_max_value(service_tasks):
-    node_memory = 4
-    return 100*(service_tasks/5) + node_memory + cluster_size
-
-
-def percentage(part, whole):
-  return 100 * float(part)/float(whole)
 
 
 def optimal_line_graph(formula, x_range):
@@ -77,50 +76,42 @@ def optimal_line_graph(formula, x_range):
     utils.plt.show()
 
 
-def grouped_bar(data):
-    # ax = sns.barplot(
-    #     x='  totJobs', y='  ObjectiveValue ', hue='  Plan technique',
-    #     #order=["fixed", "reactive", "predictive"],
-    #     # hue_order=["oracle", "bayesian"],
-    #     data=data)
+def grouped_bar(df):
+    global labels
     fig = utils.plt.figure()
     ax = fig.add_subplot(111)
 
-    space = 0.2
+    space = 0.25
+    # print df.keys()
 
-    conditions = np.unique(data[:, 0])
-    categories = np.unique(data[:, 1])
     # n = len(conditions)
-    n = len(labels_map)
-
+    n = len(labels)
     width = (1 - space) / n
-    print "width:", width
-
     i = 0
-    for cond in conditions:
-        y_vals = data[data[:, 0] == cond][:, 2].astype(np.float)
-        pos = [j - (1 - space) / 2. + i * width for j in range(1, len(categories) + 1)]
+    for cond in labels:
+        x_vals = df[df['run'] == cond]['Cardinality'].values
+        y_vals = df[df['run'] == cond][' Time(sec)'].values.astype(np.float)
         if labels_map.has_key(str(cond).strip()):
-            ax.bar(pos, y_vals, width=width, label=labels_map[str(cond).strip()], color=utils.get_bw_colors()[i],
-                       hatch=utils.hatch_patterns[i], edgecolor='black', linewidth=0.05)
-            i +=1
+            ax.plot(x_vals, y_vals, label=cond, marker=utils.marker_list[i], color=utils.micro_color_list[i])
+            i += 1
 
-    indexes = np.arange(1, len(categories)+1, 1)
+    indexes = np.arange(1, len(labels)+1, 1)
     print "Indexes: ", indexes
-    print "Categories: ", categories
-    ax.set_xticks(indexes)
-    ax.set_xticklabels(["10", "20", "30", "40", "50", "60", "70", "80", "90", "100"])
-    utils.plt.setp(utils.plt.xticks()[1], rotation=00)
-    ax.set_xlim(0,11)
+    print "Categories: ", labels
+    # ax.set_xticks(indexes)
+    # ax.set_xticklabels(x_vals)
+    # utils.plt.setp(utils.plt.xticks()[1], rotation=00)
+    ax.set_ylim(0)
+    ax.set_xlim(0)
+
+    # Make Y axis logscale
+    # utils.plt.yscale('log', nonposy='clip')
 
     # Add the axis labels
-    ax.set_ylabel("Least loaded node (\%)", labelpad=2)
-    ax.set_xlabel("Services running (cluster \%)", labelpad=2)
+    ax.set_ylabel("Tensorflow Runtime (sec)")
+    ax.set_xlabel("Worker Cardinality")
+    ax.grid(linestyle='--', axis='both')
 
-    str_ylabels = []
-    for y_tick in ax.get_yticks():
-        str_ylabels.append(str(int(y_tick)))
-    ax.set_yticklabels(str_ylabels)
 
     # optimal_line_graph('100*( x*8 ) + '+str(cluster_size) + '+ 100', range(0, len(categories) + 1))
 
@@ -129,22 +120,15 @@ def grouped_bar(data):
     ax.legend(handles[::-1], labels[::-1])
     utils.plt.tight_layout()
 
-    for axis in ['top', 'bottom', 'left', 'right']:
-        ax.spines[axis].set_linewidth(0.1)
-
-
     return fig, ax
 
 
 def file_parser(fnames):
     file_data = (pd.read_csv(f) for f in fnames)
-    all_data = pd.concat(file_data, ignore_index=True)
-    # grouped_data = all_data.groupby(['  Plan technique', '  totJobs'])['  ObjectiveValue '].mean()
+    all_data = pd.concat(file_data, keys=labels, names=['run','Cardinality' ' Time(sec)'])
     print all_data.columns.values
-    # print grouped_data
-    numpyMatrix = all_data[['  Plan technique', '  totJobs','  LeastLoadedNode (%)']].values
-    # print numpyMatrix
-    return numpyMatrix
+    all_data = all_data.reset_index()
+    return all_data
 
 
 if __name__ == '__main__':
@@ -152,10 +136,10 @@ if __name__ == '__main__':
     print "Sytem Path {}".format(os.environ['PATH'])
 
     if len(sys.argv) < 2:
-        print "Usage: bars_loadDistribution.py.py <input PATH>"
+        print "Usage: plot_cardinality.py <input PATH>"
         sys.exit(-1)
 
-    outname = "placement_loaddistribution_bars"
+    outname = "tf_cardinalities"
 
     fpaths = []
     for file in files:
@@ -167,6 +151,6 @@ if __name__ == '__main__':
 
     data = file_parser(fpaths)
     fig, axes = grouped_bar(data)
-    utils.set_rcs()
-    utils.prepare_legend(legend_loc="upper left", legend_ncol=1,  bbox_to_anchor=(0.015, 0.99), frameOn=False)
+    # utils.set_rcs()
+    utils.prepare_legend(legend_loc="upper left", alpha_num=1.0, frameOn=True)
     utils.writeout("%s"%outname)

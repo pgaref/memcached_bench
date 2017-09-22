@@ -33,21 +33,9 @@ labels = ["MEDEA-ILP", "MEDEA-NC", "Greedy", "Kubernetes"]
 labels_map={"ILP-on": "MEDEA-ILP", "GR-NODE_CAND_CACHED": "MEDEA-NC",
             "GR-SERIAL": "Greedy",  "KUBE": "Kubernetes"}
 
-hatch_patterns = ["", "/", "\\", "x", ".", "o", "O"]
-
 # Global style configuration
 # utils.set_rcs()
 
-
-def get_colors():
-    return np.array([
-        [0.1, 0.1, 0.1],          # black
-        [0.4, 0.4, 0.4],          # very dark gray
-        [0.7, 0.7, 0.7],          # dark gray
-        [0.9, 0.9, 0.9],          # light gray
-        [0.984375, 0.7265625, 0], # dark yellow
-        [1, 1, 0.9]               # light yellow
-    ])
 
 
 def color_bars(axes, colors):
@@ -66,7 +54,7 @@ def color_bars(axes, colors):
         # hatch marks int he dark color
         p.set_color(light_color)
         p.set_edgecolor(dark_color)
-        p.set_hatch(hatch_patterns[i % len(labels)])
+        p.set_hatch(utils.hatch_patterns[i % len(labels)])
         i += 1
 
 
@@ -86,7 +74,7 @@ def grouped_bar(data):
     fig = utils.plt.figure()
     ax = fig.add_subplot(111)
 
-    space = 0.25
+    space = 0.2
 
     condition_indexes = np.unique(data[:, 0], return_index=True)[1]
     conditions = [data[:, 0][index] for index in sorted(condition_indexes)]
@@ -99,11 +87,11 @@ def grouped_bar(data):
 
     i = 0
     for cond in conditions:
-        y_vals = data[data[:, 0] == cond][:, 12].astype(np.float)
+        y_vals = data[data[:, 0] == cond][:, 18].astype(np.float)
         pos = [j - (1 - space) / 2. + i * width for j in range(1, len(categories) + 1)]
         if labels_map.has_key(str(cond).strip()):
-            ax.bar(pos, y_vals, width=width, label=labels_map[str(cond).strip()], color=get_colors()[i],
-                   edgecolor=get_colors()[i+1],hatch=hatch_patterns[i])
+            ax.bar(pos, y_vals, width=width, label=labels_map[str(cond).strip()], color=utils.get_bw_colors()[i],
+                       hatch=utils.hatch_patterns[i], edgecolor='black', linewidth=0.05)
             i +=1
 
     indexes = np.arange(1, len(categories)+1, 1)
@@ -115,10 +103,15 @@ def grouped_bar(data):
     ax.set_xlim(0,11)
 
     # Add the axis labels
-    ax.set_ylabel("Successfully Placed [\%] \n Soft:{} Period:{} Complexity:{}".format(np.unique(data[:, 13])[0].strip(),
+    ax.set_ylabel("Least loaded node (%) \n Soft:{} Period:{} Complexity:{}".format(np.unique(data[:, 13])[0].strip(),
                                                                                       np.unique(data[:, 14])[0],
-                                                                                      np.unique(data[:, 15])[0]))
-    ax.set_xlabel("Services Running [Cluster \%] \n Nodes: {} Racks: {}".format(np.unique(data[:, 8])[0], np.unique(data[:, 7])[0]))
+                                                                                      np.unique(data[:, 15])[0]), labelpad=1)
+    ax.set_xlabel("Services running (cluster %) \n Nodes: {} Racks: {}".format(np.unique(data[:, 8])[0], np.unique(data[:, 7])[0]), labelpad=1)
+
+    str_ylabels = []
+    for y_tick in ax.get_yticks():
+        str_ylabels.append(str(int(y_tick)))
+    ax.set_yticklabels(str_ylabels)
 
     # optimal_line_graph('100*( x*8 ) + '+str(cluster_size) + '+ 100', range(0, len(categories) + 1))
 
@@ -126,6 +119,10 @@ def grouped_bar(data):
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles[::-1], labels[::-1])
     utils.plt.tight_layout()
+
+    for axis in ['top', 'bottom', 'left', 'right']:
+        ax.spines[axis].set_linewidth(0.1)
+
 
     return fig, ax
 
@@ -136,14 +133,12 @@ def file_parser(fnames):
     # grouped_data = all_data.groupby(['  Plan technique', '  totJobs'])['  ObjectiveValue '].mean()
     print all_data.columns.values
     # print grouped_data
-    # numpyMatrix = all_data[['  Plan technique', '  totJobs','  ServicePlanSuccess (%)']].values
     numpyMatrix = all_data[['    PlannerAlgorithm', '  Runtime(ms)', '  LRAs', '  LraRRs',
- '  TagsAvg', '  AcceptedLRAs', '  AcceptedRRs', '  Racks', '  Nodes',
- '  NodesMem(GB)', '  AllocatedMem(GB)', '  NodesMemUtil(%)',
- '  LraSuccess(%)', '  Soft', '  Period', '  Complexity', '  Violations',
- '  FragmentedNodes(%)', '  LeastLoadedNode(%)', '  LoadImbalance(stdev)',
- '  CWeight', '  RWeight', '  LWeight', '  ObjectiveValue ']].values
-
+                            '  TagsAvg', '  AcceptedLRAs', '  AcceptedRRs', '  Racks', '  Nodes',
+                            '  NodesMem(GB)', '  AllocatedMem(GB)', '  NodesMemUtil(%)',
+                            '  LraSuccess(%)', '  Soft', '  Period', '  Complexity', '  Violations',
+                            '  FragmentedNodes(%)', '  LeastLoadedNode(%)', '  LoadImbalance(stdev)',
+                            '  CWeight', '  RWeight', '  LWeight', '  ObjectiveValue ']].values
     # print numpyMatrix
     return numpyMatrix
 
@@ -153,10 +148,10 @@ if __name__ == '__main__':
     print "Sytem Path {}".format(os.environ['PATH'])
 
     if len(sys.argv) < 2:
-        print "Usage: plot_cardinality.py <input PATH>"
+        print "Usage: bars_leastLoadedNode.py <input PATH>"
         sys.exit(-1)
 
-    outname = "placement_success_bars"
+    outname = "leastLoadedNode"
 
     fpaths = []
     for file in files:
@@ -169,5 +164,5 @@ if __name__ == '__main__':
     data = file_parser(fpaths)
     fig, axes = grouped_bar(data)
     # utils.set_rcs()
-    utils.prepare_legend(legend_loc="lower left")
+    utils.prepare_legend(legend_loc="upper left", legend_ncol=1,  bbox_to_anchor=(0.015, 0.99), frameOn=False)
     utils.writeout("%s"%outname)

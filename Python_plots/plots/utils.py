@@ -52,6 +52,7 @@ def get_bw_colors():
         [0.7, 0.7, 0.7],          # dark gray
         [0.9, 0.9, 0.9],          # light gray
         [1, 1, 1],            # white
+        [1, 1, 1],  # white
         # [0.984375, 0.7265625, 0], # dark yellow
         # [1, 1, 0.9]               # light yellow
     ])
