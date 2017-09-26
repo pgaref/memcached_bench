@@ -29,8 +29,8 @@ import pandas as pd
 import plots.utils as utils
 
 files = ["no_load.csv", "load_70.csv"]
-labels = ["Tensorflow (isolated)", "Tensorflow (with background)"]
-labels_map={"Tensorflow (isolated)": "no_load.csv", "Tensorflow (with background)": "load_70.csv"}
+labels = ["Tensorflow (low utilized cluster)", "Tensorflow (high utilized cluster)"]
+labels_map={"Tensorflow (low utilized cluster)": "no_load.csv", "Tensorflow (high utilized cluster)": "load_70.csv"}
 
 hatch_patterns = ["", "/", "\\", "x", ".", "o", "O"]
 
@@ -90,7 +90,7 @@ def grouped_bar(df):
     i = 0
     for cond in labels:
         x_vals = df[df['run'] == cond]['Cardinality'].values
-        y_vals = df[df['run'] == cond][' Time(sec)'].values.astype(np.float)
+        y_vals = df[df['run'] == cond][' Time(sec)'] / 60
         if labels_map.has_key(str(cond).strip()):
             ax.plot(x_vals, y_vals, label=cond, marker=utils.marker_list[i], color=utils.micro_color_list[i])
             i += 1
@@ -108,8 +108,8 @@ def grouped_bar(df):
     # utils.plt.yscale('log', nonposy='clip')
 
     # Add the axis labels
-    ax.set_ylabel("Tensorflow Runtime (sec)")
-    ax.set_xlabel("Worker Cardinality")
+    ax.set_ylabel("Tensorflow runtime (minutes)")
+    ax.set_xlabel("Worker cardinality")
     ax.grid(linestyle='--', axis='both')
 
 
