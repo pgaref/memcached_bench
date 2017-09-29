@@ -36,6 +36,7 @@ labels_map={"ILP-on": "ILP", "GR-NODE_CAND_CACHED": "Node Candidates",
 # Global style configuration
 # utils.set_rcs()
 
+
 def grouped_bar(data):
     # ax = sns.barplot(
     #     x='  totJobs', y='  ObjectiveValue ', hue='  Plan technique',
@@ -64,13 +65,13 @@ def grouped_bar(data):
     i = 0
     for cond in conditions:
         print cond
-        y_vals = data[data[:, 0] == cond][:, 19].astype(np.float)
+        y_vals = data[data[:, 0] == cond][:, 16].astype(np.float) / data[data[:, 0] == cond][:, 3].astype(np.float) *100
         print y_vals
         pos = [j - (1 - space) / 2. + i * width for j in range(1, len(categories) + 1)]
         if labels_map.has_key(str(cond).strip()):
             ax.bar(pos, y_vals, width=width, label=labels_map[str(cond).strip()], color=utils.get_bw_colors()[i],
                    hatch=utils.hatch_patterns[i], edgecolor='black', linewidth=0.05)
-            ax.plot(pos, y_vals, color='black', marker=utils.marker_list[i], linestyle='--', linewidth=0.6)
+            # ax.plot(pos, y_vals, color='black', marker=utils.marker_list[i], linestyle='--', linewidth=0.6)
             i +=1
 
     indexes = np.arange(1, len(categories)+1, 1)
@@ -79,11 +80,11 @@ def grouped_bar(data):
     ax.set_xticks(indexes)
     ax.set_xticklabels(categories)
     utils.plt.setp(utils.plt.xticks()[1], rotation=00)
-    ax.set_ylim(0, 5.5)
+    ax.set_ylim(0,50)
     # ax.set_xlim(0.3,9.5)
 
     # Add the axis labels
-    ax.set_ylabel("Load imbalance(std_dev) \n Soft:{} Period:{}".format(np.unique(data[:, 13])[0].strip(),
+    ax.set_ylabel("Constraint violations (%) \n Soft:{} Period:{}".format(np.unique(data[:, 13])[0].strip(),
                                                                                       np.unique(data[:, 14])[0]), labelpad=2)
     ax.set_xlabel("Complexity \n Nodes: {} Racks: {}".format(np.unique(data[:, 8])[0], np.unique(data[:, 7])[0]), labelpad=2)
 
@@ -127,10 +128,10 @@ if __name__ == '__main__':
     print "System Path {}".format(os.environ['PATH'])
 
     if len(sys.argv) < 2:
-        print "Usage: bars_complexity_std_dev.py <input PATH>"
+        print "Usage: bars_complexity_violations.py <input PATH>"
         sys.exit(-1)
 
-    outname = "complexity_std_dev"
+    outname = "complexity_violations"
 
     fpaths = []
     for file in files:

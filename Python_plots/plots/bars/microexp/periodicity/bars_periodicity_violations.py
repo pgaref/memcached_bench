@@ -30,7 +30,7 @@ import plots.utils as utils
 
 files = ["ILP-on_stats.csv", "GR-NODE_CAND_CACHED_stats.csv", "GR-NODE_CAND_CACHED_LB_stats.csv", "GR-SERIAL_stats.csv", "GR-APP_C_TAG_L_stats.csv", "KUBE_stats.csv"]
 labels = ["ILP", "Node Candidates", "Node Candidates LB", "Serial", "Popular Tags", "Kubernetes"]
-labels_map={"ILP-on": "ILP", "GR-NODE_CAND_CACHED": "Node Candidates", "GR-NODE_CAND_CACHED_LB": "Node Candidates LB",
+labels_map={"ILP-on": "ILP", "GR-NODE_CAND_CACHED": "Node Candidates",
             "GR-SERIAL": "Serial",  "GR-APP_C_TAG_L": "Popular Tags","KUBE": "Kubernetes"}
 
 # Global style configuration
@@ -98,7 +98,7 @@ def grouped_bar(data):
         if labels_map.has_key(str(cond).strip()):
             ax.bar(pos, y_vals, width=width, label=labels_map[str(cond).strip()], color=utils.get_bw_colors()[i],
                    hatch=utils.hatch_patterns[i], edgecolor='black', linewidth=0.05)
-            ax.plot(pos, y_vals, color='black', marker=utils.marker_list[i], linestyle='--', linewidth=0.6)
+            # ax.plot(pos, y_vals, color='black', marker=utils.marker_list[i], linestyle='--', linewidth=0.6)
             i +=1
 
     indexes = np.arange(1, len(categories)+1, 1)

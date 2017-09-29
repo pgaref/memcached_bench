@@ -71,7 +71,7 @@ def grouped_bar(data):
         if labels_map.has_key(str(cond).strip()):
             ax.bar(pos, y_vals, width=width, label=labels_map[str(cond).strip()], color=utils.get_bw_colors()[i],
                    hatch=utils.hatch_patterns[i], edgecolor='black', linewidth=0.05)
-            ax.plot(pos, y_vals, color='black', marker=utils.marker_list[i], linestyle='--', linewidth=0.6)
+            # ax.plot(pos, y_vals, color='black', marker=utils.marker_list[i], linestyle='--', linewidth=0.6)
             i +=1
 
     indexes = np.arange(1, len(categories)+1, 1)
